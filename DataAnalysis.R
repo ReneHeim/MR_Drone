@@ -31,22 +31,21 @@
 # Setting up coding environment ------------------------------------------------
 
 
-dir.create('data', FALSE, FALSE) #creating directories
-dir.create('R', FALSE, FALSE)
+
 dir.create('output', FALSE, FALSE)
 
-install.packages(c("rgdal",
-"raster",
-"tictoc",
-"caret",
-"tidyverse",
-"e1071",
-"randomForest",
-"gdata",
-"hsdar",
-"utils",
-"raster",
-"rasterVis")) #installing required packages (pls uncomment to and run)
+# install.packages(c("rgdal",
+# "raster",
+# "tictoc",
+# "caret",
+# "tidyverse",
+# "e1071",
+# "randomForest",
+# "gdata",
+# "hsdar",
+# "utils",
+# "raster",
+# "rasterVis")) #installing required packages (pls uncomment to and run)
 
 library(rgdal) #load installed pkgs
 library(raster)
