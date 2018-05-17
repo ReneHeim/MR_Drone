@@ -1,11 +1,14 @@
-####
-# Function accepts a multi-layered RasterBrick to extract pixel values from 
-# pre-defined polygons saved as a GIS shape file. Then a df is created, 
-# containing an ID and classification labels for each pixel.
-# The user must define a "Treatment" column and an "ID" column when drawing the 
-# polygons by using a GIS software (e.g. QGIS).
-####
-
+#' Extract pixel values from a .tif file
+#'
+#' @param rsta Multiband raster file (e.g. raster stack or brick)
+#' @param shp SpatialPolygonsDataFrame containing sampling polygons (ID and 
+#' Treatment columns required)
+#' @return SpatialPolygonsDataFrame conatining all values that were captured by
+#' the polygons and also contains an ID and Treatment column
+#' @examples
+#' img <- brick("data/anymultilayerimage.tif")
+#' poly <- shapefile("data/samplepolygons.shp") #were sampled on img using GIS
+#' df <- extract_pixel(img, poly)
 extract_pixel <- function(rsta, shp){
   
   responseCol <- "id"

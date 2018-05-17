@@ -1,0 +1,148 @@
+% Code
+
+The following code extracts reflectance values from a multispectral aerial image
+and then tests whether it is possible to build a classification model that can 
+accurately discriminate _Backhousia citriodora_ (lemon myrtle) trees trees infected with myrtle rust (caused by _Austropuccinia psidii_) and healthy ones. 
+
+# Setup coding environment
+
+## Install and load packages
+
+Please run the following code to install required R packages
+```{r installpkgs, eval=FALSE}
+
+install.packages(c("rgdal", 
+                   "raster", 
+                   "roxygen2",
+                   "tictoc", 
+                   "tidyverse", 
+                   "caret",
+                    "e1071", 
+                   "gdata", 
+                   "hsdar", 
+                   "utils", 
+                   "magrittr", 
+                   "rasterVis",  
+                   "rmarkdown"))
+```
+
+Now we load the installed packages:
+```{r loadpkgs, results='hide', message=FALSE, warning=FALSE}
+library(rgdal) #load installed pkgs
+library(raster)
+library(tictoc)
+library(caret)
+library(gdata)
+library(hsdar)
+library(utils)
+library(rasterVis)
+library(rmarkdown)
+library(roxygen2)
+library(magrittr)
+library(knitr)
+```
+
+Also the necessary functions, which can be download from the GitHub repository:
+```{r loadfcts}
+source("R/FUN_raw2speclibhsdar.R")#coverts spec data to hsdar lib
+source("R/FUN_drop_cat_var.R")#drops factor and factor level
+source("R/FUN_extract_pixel.R")
+```
+
+And create a directory for the analysis output:
+```{r createdir}
+dir.create("output", FALSE, FALSE)
+```
+
+## Loading and preparing data
+
+First we loaded a five-band aerial .tif image captured on our field site (1). 
+Then we renamed each channel according to the camera the image was captured (2).
+(Band1(blue=475nm), Band2 (green=560nm), Band3 (Red=668nm), Band4 (840nm), Band5 (rededge=717nm), Band6 (alphaband))
+```{r brick}
+img <-
+  brick("data/FullOrtho_crop.tif") #1
+  img@data@names <-
+  c("Blue", "Green", "Red", "NIR", "RedEdge", "Alpha") #2
+```
+
+The scene looks like this:
+```{r img, echo=FALSE, out.width='100%'}
+ext <- extent(153.2954, 153.2958, -28.69125, -28.69093)
+plotRGB(img, r = 3, g = 2, b = 1, ext=ext)
+```
+
+Then we can load a shape file (created with QGIS) to overlay polygons from where 
+we sample pixel representing "Treated", "Untreated" and "Shadow" regions of each
+tree. Here are the sample regions:
+```{r shp}
+alldata <- shapefile("data/20180427mrdrone_trainpolyforR.shp")
+```
+
+```{r echo=FALSE, out.width='100%', fig.cap="Sample"}
+#knitr::include_graphics('figs/samplingpolygons.PNG')
+```
+
+Now, that we have both objects available (img and alldata), we can extract the 
+pixel values where we positioned the polygons.
+```{r extract}
+dfAll <- extract_pixel(img, alldata)
+head(dfAll)
+```
+
+Unfortunately, we only have the ID in our new data. We have to replace this with
+each class to make the classification easier to interpret.
+```{r}
+# Constructing table
+
+Treatment <- alldata$Type
+ID <- alldata$id
+
+dfclass <- cbind(Treatment, ID)
+
+# Looks up IDs that are linked to class labels and splits them up
+
+classvec <- unique(as.character(dfclass[,1]))
+li <- list()
+
+for(i in classvec){
+  x <- subset(dfclass, dfclass[,1] == i)
+  li[[i]] <- assign(paste0(i,"_","num"), as.numeric(x[,2]))
+  }
+
+# Reassembles a df that has written the class labels instead of ID numbers
+
+for(i in UN_num){
+dfAll$class[dfAll$class == i] <- "UN"
+}
+
+for(i in TR_num){
+  dfAll$class[dfAll$class == i] <- "TR"
+}
+
+for(i in SHD_num){
+  dfAll$class[dfAll$class == i] <- "SHD"
+}
+
+dfAll$class <- as.factor(dfAll$class)
+names(dfAll)[7] <- c("Type")
+```
+
+Now we divide by 65535 to transform the digital number stored in our multilayer 
+image into reflectance.
+```{r}
+dfAll[,1:5] <- dfAll[,1:5]/65535#divide by 65535 to yield refl between 0 and 1
+```
+
+Eventually, we can write/export our data to have it available for future analysis.
+```{r}
+write.csv(dfAll[,1:7], 'output/2018MyrtleRust_Refl.csv', row.names = FALSE)
+classif <- read.csv("output/2018MyrtleRust_Refl.csv")
+classif <- classif[,c(1,2,3,4,5,7)] # remove alpha band, not required for clas
+unique(classif$Type)
+```
+
+
+
+
+

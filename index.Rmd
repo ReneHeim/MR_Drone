@@ -1,0 +1,26 @@
+% About
+
+<img src = "D:\\R\\RustIndex\\figs\\MyBlogLOGO.png" align= left width = 270 
+hspace= 50px> This research compendium contains the data and R codes to reproduce 
+the article REF HERE. The main objective was to design and test a new 
+disease-specific vegetation index to detect 
+[myrtle rust](http://www.pbcrc.com.au/news/2016/pbcrc/myrtle-rust-threat-australian-landscape-and-plant-industries) (_Austropuccinia psidii_) on lemon myrtle trees (_Backhousia citriodora_)
+using remote and near-range optical sensor systems. 
+
+## Citation
+
+> ADD HOW TO CITE HERE
+
+## Pre-print version
+
+> ADD LINK HERE  
+
+## Abstract
+
+ABSTRACT HERE
+
+## Licences
+
+Data: [CC-0](https://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse   
+Manuscript: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)  
+Code: [MIT](https://opensource.org/licenses/MIT) year: 2017, copyright holder: René Heim
