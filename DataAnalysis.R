@@ -201,6 +201,9 @@ Mica.Prediction <- readRDS("output/I_Mica3ClassPred.rds")
 
 imgpred <-  brick("data/20180427_orthophoto_noground_MRDrone.tif") # load lemon 
 #myrtle trees without ground to predict wo grass
+NAvalue(imgpred)
+NAvalue(imgpred) <- 65535
+
     riskpre <- subset(imgpred, 1:5) # remove alpha/transparency channel as it 
     #was not used as a predictor var in rf 
         risk <- riskpre/65535 # divide by 65535 to change values to reflectance
@@ -208,7 +211,15 @@ imgpred <-  brick("data/20180427_orthophoto_noground_MRDrone.tif") # load lemon
               c("Blue", "Green", "Red", "NIR", "RedEdge", "Alpha") # rename
 
             riskpred <- predict(risk, Mica.Prediction$fit)
-                plot(riskpred)
+            
+            
+            
+            miat = c(0, 0.33, 0.66, 1)
+            classcolor <- c("#0F0F0F", "#1CEB15", "#F21D1D")
+            levelplot(riskpred,
+                      margin = FALSE,
+                      at = miat,
+                      col.regions= classcolor)
 
                 currentDate <- Sys.Date()
                 rstFileName <- paste("output/riskmap",currentDate,".tif",sep="")
