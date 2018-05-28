@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Code</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+
+.section h2 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h3 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h4 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h5 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h6 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MR Drones</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fas fa fas fa-clipboard"></span>
+     
+    Summary
+  </a>
+</li>
+<li>
+  <a href="data.html">
+    <span class="fa fa-table"></span>
+     
+    Data
+  </a>
+</li>
+<li>
+  <a href="code.html">
+    <span class="fa fa-file-code-o"></span>
+     
+    Code
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Code</h1>
+
+</div>
+
+
+<p>The following code extracts reflectance values from a multispectral aerial image and then tests whether it is possible to build a classification model that can accurately discriminate <em>Backhousia citriodora</em> (lemon myrtle) trees trees infected with myrtle rust (caused by <em>Austropuccinia psidii</em>) and healthy ones.</p>
+<div id="setup-coding-environment" class="section level1">
+<h1>Setup coding environment</h1>
+<div id="install-and-load-packages" class="section level2">
+<h2>Install and load packages</h2>
+<p>Please run the following code to install required R packages</p>
+<pre class="r"><code>install.packages(c(&quot;rgdal&quot;, 
+                   &quot;raster&quot;, 
+                   &quot;roxygen2&quot;,
+                   &quot;tictoc&quot;, 
+                   &quot;tidyverse&quot;, 
+                   &quot;caret&quot;,
+                    &quot;e1071&quot;, 
+                   &quot;gdata&quot;, 
+                   &quot;hsdar&quot;, 
+                   &quot;utils&quot;, 
+                   &quot;magrittr&quot;, 
+                   &quot;rasterVis&quot;,  
+                   &quot;rmarkdown&quot;))</code></pre>
+<p>Now we load the installed packages:</p>
+<pre class="r"><code>library(rgdal) #load installed pkgs
+library(raster)
+library(tictoc)
+library(caret)
+library(gdata)
+library(hsdar)
+library(utils)
+library(rasterVis)
+library(rmarkdown)
+library(roxygen2)
+library(magrittr)
+library(knitr)
+library(reshape2)
+library(cowplot)</code></pre>
+<p>Also the necessary functions, which can be download from the GitHub repository:</p>
+<pre class="r"><code>source(&quot;R/FUN_raw2speclibhsdar.R&quot;)#coverts spec data to hsdar lib
+source(&quot;R/FUN_drop_cat_var.R&quot;)#drops factor and factor level
+source(&quot;R/FUN_extract_pixel.R&quot;)
+source(&quot;R/FUN_caretout.R&quot;)
+source(&quot;R/FUN_prepggwide2long.R&quot;)</code></pre>
+<p>And create a directory for the analysis output:</p>
+<pre class="r"><code>dir.create(&quot;output&quot;, FALSE, FALSE)</code></pre>
+</div>
+<div id="loading-and-preparing-data" class="section level2">
+<h2>Loading and preparing data</h2>
+<p>First we loaded a five-band aerial .tif image captured on our field site (1). Then we renamed each channel according to the camera the image was captured (2). (Band1(blue=475nm), Band2 (green=560nm), Band3 (Red=668nm), Band4 (840nm), Band5 (rededge=717nm), Band6 (alphaband))</p>
+<pre class="r"><code>img &lt;-
+  brick(&quot;data/FullOrtho_crop.tif&quot;) #1
+  img@data@names &lt;-
+  c(&quot;Blue&quot;, &quot;Green&quot;, &quot;Red&quot;, &quot;NIR&quot;, &quot;RedEdge&quot;, &quot;Alpha&quot;) #2</code></pre>
+<p>The scene looks like this: <img src="code_files/figure-html/img-1.png" width="100%" /></p>
+<p>Then we can load a shape file (created with QGIS) to overlay polygons from where we sample pixel representing “Treated”, “Untreated” and “Shadow” regions of each tree. Here are the sample regions:</p>
+<pre class="r"><code>alldata &lt;- shapefile(&quot;data/20180427mrdrone_trainpolyforR.shp&quot;)</code></pre>
+<div class="figure">
+<img src="figs/samplingpolygons.PNG" alt="Sample" width="100%" />
+<p class="caption">
+Sample
+</p>
+</div>
+<p>Now, that we have both objects available (img and alldata), we can extract the pixel values where we positioned the polygons.</p>
+<pre class="r"><code>dfAll &lt;- extract_pixel(img, alldata)
+head(dfAll)</code></pre>
+<pre><code>##   Blue Green  Red   NIR RedEdge Alpha class
+## 1 2766  5874 2327  7495   12694 65535     1
+## 2 3096  5300 1953  7320   11838 65535     1
+## 3 2670  4761 2590  6603   10523 65535     1
+## 4 6720  9444 5570 11305   16311 65535     1
+## 5 5486  8058 4229 10106   14024 65535     1
+## 6 3813  6203 3439  8751   12602 65535     1</code></pre>
+<p>Unfortunately, we only have the ID in our new data. We have to replace this with each class to make the classification easier to interpret.</p>
+<pre class="r"><code># Constructing table
+
+Treatment &lt;- alldata$Type
+ID &lt;- alldata$id
+
+dfclass &lt;- cbind(Treatment, ID)
+
+# Looks up IDs that are linked to class labels and splits them up
+
+classvec &lt;- unique(as.character(dfclass[,1]))
+li &lt;- list()
+
+for(i in classvec){
+  x &lt;- subset(dfclass, dfclass[,1] == i)
+  li[[i]] &lt;- assign(paste0(i,&quot;_&quot;,&quot;num&quot;), as.numeric(x[,2]))
+  }
+
+# Reassembles a df that has written the class labels instead of ID numbers
+
+for(i in UN_num){
+dfAll$class[dfAll$class == i] &lt;- &quot;UN&quot;
+}
+
+for(i in TR_num){
+  dfAll$class[dfAll$class == i] &lt;- &quot;TR&quot;
+}
+
+for(i in SHD_num){
+  dfAll$class[dfAll$class == i] &lt;- &quot;SHD&quot;
+}
+
+dfAll$class &lt;- as.factor(dfAll$class)
+names(dfAll)[7] &lt;- c(&quot;Type&quot;)</code></pre>
+<p>Now we divide by 65535 to transform the digital number stored in our multilayer image into reflectance.</p>
+<pre class="r"><code>dfAll[,1:5] &lt;- dfAll[,1:5]/65535#divide by 65535 to yield refl between 0 and 1</code></pre>
+<p>Eventually, we can write/export our data to have it available for future analysis.</p>
+<pre class="r"><code>write.csv(dfAll[,1:7], &#39;output/2018MyrtleRust_Refl.csv&#39;, row.names = FALSE)
+classif &lt;- read.csv(&quot;output/2018MyrtleRust_Refl.csv&quot;)
+classif &lt;- classif[,c(1,2,3,4,5,7)] # remove alpha band, not required for clas
+classif &lt;- classif[,c(6,1,2,3,5,4)]
+unique(classif$Type)</code></pre>
+<pre><code>## [1] SHD UN  TR 
+## Levels: SHD TR UN</code></pre>
+<p>Plot part A of spectra</p>
+</div>
+<div id="classification-part-a-aerial-3-class" class="section level2">
+<h2>Classification Part A (Aerial 3-Class)</h2>
+<p>First we set a seed to avoid random number generation in vulnerable processes (1). Then we partition the extracted pixel data in a training and test subset (2). Finally, we control the settings for the random forest training process (3-4).</p>
+<pre class="r"><code>set.seed(20180427) #1
+
+inTraining &lt;- createDataPartition(classif$Type, p = .75, list = FALSE)
+train &lt;- classif[ inTraining,]
+test  &lt;- classif[-inTraining,] #2
+
+rfControl &lt;- trainControl(
+  method = &quot;boot&quot;,
+  number = 1
+  ) #3
+
+rfGrid &lt;- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #4</code></pre>
+<p>Once we tuned the settings, we can run the training process.</p>
+<pre class="r"><code>rfFit &lt;- train(Type ~ ., data = train,
+               method = &quot;rf&quot;,
+               importance = TRUE, ntree=5,
+               trControl = rfControl, tuneGrid = rfGrid,
+               metric = &quot;Accuracy&quot;, maximize = TRUE)</code></pre>
+<p>Then we validate the model on the not yet seen data partition.</p>
+<pre class="r"><code>rfPred &lt;- 
+  predict.train(rfFit, test[, !names(test) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;)</code></pre>
+<pre><code>## RF.I: 1.43 sec elapsed</code></pre>
+<p>Eventually, we can export our results.</p>
+<pre class="r"><code>Mica.Prediction &lt;- 
+  list(fit = rfFit,
+  pred = predict.train(rfFit, test[, !names(test) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;),
+  confusion = confusionMatrix(rfPred, test$Type),
+  varImp = varImp(rfFit, scale = FALSE))
+
+sink(file = &#39;output/I_AllClasses.txt&#39;)
+Mica.Prediction</code></pre>
+<pre><code>## $fit
+## Random Forest 
+## 
+## 9197 samples
+##    5 predictor
+##    3 classes: &#39;SHD&#39;, &#39;TR&#39;, &#39;UN&#39; 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (1 reps) 
+## Summary of sample sizes: 9197 
+## Resampling results across tuning parameters:
+## 
+##   mtry  Accuracy   Kappa    
+##   1     0.8506841  0.7760098
+##   2     0.8548483  0.7822408
+##   3     0.8497918  0.7746428
+##   4     0.8488995  0.7732836
+##   5     0.8551457  0.7827076
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final value used for the model was mtry = 5.
+## 
+## $pred
+##    [1] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##   [18] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##   [35] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD TR  SHD SHD
+##   [52] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##   [69] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##   [86] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [103] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [120] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [137] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [154] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [171] SHD SHD SHD UN  SHD SHD SHD SHD SHD TR  UN  SHD SHD SHD UN  SHD SHD
+##  [188] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [205] SHD SHD SHD SHD SHD SHD TR  SHD SHD SHD SHD SHD SHD UN  TR  SHD SHD
+##  [222] SHD SHD SHD SHD SHD SHD SHD SHD SHD TR  SHD SHD UN  SHD SHD SHD SHD
+##  [239] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD TR  SHD SHD SHD SHD SHD
+##  [256] SHD SHD SHD UN  SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [273] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [290] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [307] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [324] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [341] UN  SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [358] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [375] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [392] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [409] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [426] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [443] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [460] SHD SHD SHD SHD SHD SHD SHD SHD SHD UN  SHD SHD SHD TR  SHD SHD SHD
+##  [477] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [494] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [511] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [528] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [545] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [562] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [579] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [596] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [613] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [630] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [647] SHD SHD SHD SHD UN  SHD SHD SHD SHD SHD UN  SHD SHD SHD SHD SHD SHD
+##  [664] UN  UN  TR  SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [681] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [698] SHD SHD SHD UN  UN  UN  SHD SHD UN  UN  SHD SHD SHD SHD SHD SHD SHD
+##  [715] SHD SHD SHD SHD SHD SHD SHD SHD SHD UN  SHD SHD SHD SHD SHD SHD UN 
+##  [732] SHD SHD SHD SHD SHD UN  UN  SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [749] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [766] SHD SHD SHD SHD SHD UN  SHD UN  SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [783] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [800] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [817] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [834] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [851] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [868] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [885] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [902] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [919] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [936] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [953] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [970] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+##  [987] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+## [1004] SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD SHD
+## [1021] SHD SHD TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  TR  UN  UN  UN 
+## [1038] UN  TR  UN  UN  UN  TR  UN  TR  UN  UN  UN  TR  TR  TR  UN  UN  UN 
+## [1055] UN  UN  UN  UN  TR  UN  TR  UN  UN  TR  UN  UN  UN  UN  TR  UN  TR 
+## [1072] UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  TR  UN  UN  UN  TR  UN  UN 
+## [1089] TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN 
+## [1106] TR  UN  TR  UN  UN  UN  TR  UN  TR  TR  UN  TR  UN  UN  TR  TR  UN 
+## [1123] UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  TR  TR 
+## [1140] UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  TR  UN 
+## [1157] UN  TR  TR  TR  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN  TR 
+## [1174] TR  UN  UN  UN  TR  UN  UN  UN  TR  TR  TR  UN  UN  UN  UN  UN  UN 
+## [1191] TR  UN  UN  UN  UN  UN  TR  UN  TR  UN  TR  TR  UN  TR  TR  UN  UN 
+## [1208] UN  UN  UN  TR  UN  SHD UN  SHD TR  UN  UN  UN  UN  UN  TR  UN  UN 
+## [1225] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1242] UN  SHD UN  UN  TR  UN  UN  TR  UN  UN  UN  UN  UN  TR  UN  UN  UN 
+## [1259] TR  UN  UN  UN  UN  TR  UN  UN  TR  TR  UN  TR  UN  TR  UN  UN  UN 
+## [1276] TR  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1293] UN  TR  UN  SHD UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN 
+## [1310] UN  UN  UN  UN  UN  UN  UN  TR  UN  TR  UN  UN  UN  UN  TR  UN  TR 
+## [1327] UN  TR  UN  TR  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN 
+## [1344] UN  UN  UN  TR  SHD UN  UN  UN  UN  UN  UN  UN  SHD SHD SHD UN  UN 
+## [1361] UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN 
+## [1378] UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  TR  UN  UN  UN  UN  UN  UN 
+## [1395] TR  TR  UN  UN  UN  UN  UN  UN  TR  UN  TR  UN  UN  TR  UN  UN  UN 
+## [1412] TR  UN  UN  TR  TR  UN  UN  TR  UN  TR  TR  TR  UN  UN  TR  TR  TR 
+## [1429] TR  TR  TR  UN  TR  UN  UN  UN  UN  UN  TR  UN  TR  UN  TR  UN  UN 
+## [1446] UN  TR  UN  SHD UN  TR  UN  TR  TR  UN  UN  UN  UN  TR  TR  TR  UN 
+## [1463] UN  UN  UN  UN  UN  TR  TR  UN  UN  TR  TR  TR  TR  TR  UN  UN  SHD
+## [1480] SHD UN  TR  UN  TR  TR  TR  UN  UN  UN  UN  TR  UN  UN  UN  UN  TR 
+## [1497] UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN 
+## [1514] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1531] TR  TR  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  TR 
+## [1548] UN  UN  UN  UN  UN  UN  UN  SHD UN  UN  UN  UN  UN  UN  UN  TR  UN 
+## [1565] UN  UN  UN  TR  UN  UN  UN  TR  UN  UN  TR  UN  UN  UN  UN  UN  UN 
+## [1582] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1599] UN  UN  UN  UN  TR  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1616] UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN 
+## [1633] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN 
+## [1650] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1667] UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  TR  UN  UN  UN 
+## [1684] UN  UN  UN  TR  UN  UN  UN  UN  UN  TR  UN  TR  UN  UN  UN  UN  UN 
+## [1701] UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN 
+## [1718] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1735] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1752] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1769] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1786] UN  UN  UN  UN  UN  TR  UN  TR  UN  UN  UN  UN  TR  UN  UN  UN  UN 
+## [1803] UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1820] UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1837] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN 
+## [1854] UN  TR  UN  TR  UN  UN  TR  UN  UN  UN  TR  UN  UN  TR  UN  UN  UN 
+## [1871] UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1888] UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1905] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1922] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1939] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1956] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN 
+## [1973] UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  UN  TR  UN  UN  UN 
+## [1990] SHD UN  UN  UN  TR  TR  UN  UN  TR  UN  UN  UN  UN  UN  UN  UN  UN 
+## [2007] UN  UN  TR  TR  UN  UN  UN  UN  UN  TR  UN  TR  UN  UN  TR  UN  UN 
+## [2024] UN  UN  TR  TR  TR  SHD SHD TR  UN  UN  UN  TR  TR  UN  UN  UN  TR 
+## [2041] UN  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2058] UN  TR  TR  UN  UN  TR  TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  UN 
+## [2075] UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2092] TR  TR  TR  UN  TR  TR  UN  TR  TR  TR  TR  TR  UN  UN  UN  UN  UN 
+## [2109] UN  TR  TR  TR  UN  UN  TR  TR  TR  TR  TR  UN  UN  TR  UN  TR  UN 
+## [2126] UN  UN  UN  UN  UN  UN  UN  TR  SHD TR  TR  UN  TR  TR  UN  TR  UN 
+## [2143] TR  TR  TR  TR  UN  TR  TR  UN  TR  UN  UN  TR  TR  TR  UN  TR  TR 
+## [2160] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  UN  TR 
+## [2177] TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2194] TR  TR  TR  UN  UN  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2211] TR  TR  TR  TR  UN  UN  TR  TR  TR  TR  UN  TR  UN  TR  UN  UN  TR 
+## [2228] TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  UN  TR  TR  TR  TR  TR  TR 
+## [2245] TR  TR  TR  TR  TR  UN  TR  UN  UN  TR  TR  UN  TR  TR  TR  TR  TR 
+## [2262] TR  UN  UN  TR  UN  UN  TR  TR  TR  TR  SHD UN  UN  UN  SHD SHD TR 
+## [2279] TR  UN  TR  UN  TR  TR  UN  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2296] TR  TR  TR  TR  TR  UN  TR  TR  TR  UN  UN  TR  TR  TR  UN  UN  UN 
+## [2313] UN  TR  TR  TR  TR  TR  UN  UN  TR  TR  TR  UN  TR  TR  TR  TR  TR 
+## [2330] TR  TR  UN  TR  UN  TR  TR  UN  UN  UN  UN  TR  TR  UN  UN  UN  UN 
+## [2347] TR  TR  UN  TR  TR  TR  UN  UN  UN  TR  TR  UN  UN  UN  TR  SHD SHD
+## [2364] TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2381] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2398] UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2415] TR  TR  TR  TR  UN  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR 
+## [2432] TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  UN  TR 
+## [2449] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  UN  TR  TR  TR 
+## [2466] TR  TR  UN  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2483] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2500] TR  TR  TR  UN  TR  TR  UN  UN  TR  UN  UN  TR  UN  TR  TR  TR  SHD
+## [2517] TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR 
+## [2534] UN  TR  TR  TR  TR  TR  TR  TR  TR  UN  UN  TR  UN  TR  TR  TR  TR 
+## [2551] TR  TR  TR  TR  TR  TR  UN  TR  UN  TR  UN  TR  TR  TR  TR  TR  TR 
+## [2568] TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2585] TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2602] TR  TR  UN  TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  UN  TR  TR  TR 
+## [2619] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2636] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2653] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  TR  TR 
+## [2670] TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2687] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  TR 
+## [2704] TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  UN  TR  TR  UN 
+## [2721] UN  TR  TR  UN  TR  UN  TR  TR  TR  TR  UN  TR  UN  TR  TR  TR  TR 
+## [2738] TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR 
+## [2755] UN  TR  TR  UN  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  UN  TR  TR 
+## [2772] UN  TR  TR  TR  TR  UN  UN  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR 
+## [2789] UN  UN  TR  TR  TR  UN  TR  TR  TR  TR  UN  TR  TR  TR  TR  UN  TR 
+## [2806] TR  UN  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2823] TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  UN 
+## [2840] UN  TR  TR  TR  TR  TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  UN  TR 
+## [2857] TR  UN  TR  UN  TR  UN  UN  TR  UN  UN  TR  TR  UN  UN  UN  UN  TR 
+## [2874] UN  UN  TR  UN  TR  TR  UN  UN  UN  TR  UN  TR  TR  TR  TR  UN  UN 
+## [2891] TR  UN  TR  UN  TR  UN  TR  TR  UN  TR  UN  UN  TR  TR  TR  UN  UN 
+## [2908] UN  TR  TR  TR  TR  TR  UN  TR  UN  TR  TR  TR  UN  TR  TR  TR  UN 
+## [2925] TR  UN  UN  UN  UN  TR  UN  TR  UN  TR  UN  TR  UN  TR  TR  UN  TR 
+## [2942] UN  TR  UN  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2959] TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [2976] TR  TR  UN  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN 
+## [2993] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [3010] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [3027] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR 
+## [3044] TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  TR  UN  TR 
+## [3061] TR  TR  TR  TR  TR 
+## Levels: SHD TR UN
+## 
+## $confusion
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction SHD  TR  UN
+##        SHD 992   6  13
+##        TR   10 812 175
+##        UN   20 205 832
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.86            
+##                  95% CI : (0.8472, 0.8721)
+##     No Information Rate : 0.3338          
+##     P-Value [Acc &gt; NIR] : &lt;2e-16          
+##                                           
+##                   Kappa : 0.7901          
+##  Mcnemar&#39;s Test P-Value : 0.1829          
+## 
+## Statistics by Class:
+## 
+##                      Class: SHD Class: TR Class: UN
+## Sensitivity              0.9706    0.7937    0.8157
+## Specificity              0.9907    0.9094    0.8900
+## Pos Pred Value           0.9812    0.8144    0.7871
+## Neg Pred Value           0.9854    0.8980    0.9064
+## Prevalence               0.3334    0.3338    0.3328
+## Detection Rate           0.3237    0.2649    0.2715
+## Detection Prevalence     0.3299    0.3253    0.3449
+## Balanced Accuracy        0.9807    0.8516    0.8528
+## 
+## $varImp
+## rf variable importance
+## 
+##   variables are sorted by maximum importance across the classes
+##            SHD     TR     UN
+## Red     31.484 -3.309 10.692
+## NIR      3.939 19.891  3.057
+## Blue     5.928 -9.315 16.476
+## RedEdge  2.977  5.958 14.356
+## Green    5.263  6.290  4.435</code></pre>
+<pre class="r"><code>sink()
+
+saveRDS(Mica.Prediction, &#39;output/I_AllClasses.rds&#39;)
+Mica.Prediction &lt;- readRDS(&quot;output/I_AllClasses.rds&quot;)</code></pre>
+</div>
+<div id="risk-map" class="section level2">
+<h2>Risk map</h2>
+<pre class="r"><code>imgpred &lt;-  brick(&quot;data/20180427_orthophoto_noground_MRDrone.tif&quot;) # load lemon 
+#myrtle trees without ground to predict wo grass
+NAvalue(imgpred)</code></pre>
+<pre><code>## [1] -Inf</code></pre>
+<pre class="r"><code>NAvalue(imgpred) &lt;- 65535
+
+    riskpre &lt;- subset(imgpred, 1:5) # remove alpha/transparency channel as it 
+    #was not used as a predictor var in rf 
+        risk &lt;- riskpre/65535 # divide by 65535 to change values to reflectance
+            risk@data@names &lt;- 
+              c(&quot;Blue&quot;, &quot;Green&quot;, &quot;Red&quot;, &quot;NIR&quot;, &quot;RedEdge&quot;, &quot;Alpha&quot;) # rename
+
+            riskpred &lt;- predict(risk, Mica.Prediction$fit)
+            
+            
+            
+            miat = c(0, 0.33, 0.66, 1)
+            classcolor &lt;- c(&quot;#0F0F0F&quot;, &quot;#1CEB15&quot;, &quot;#F21D1D&quot;)
+            levelplot(riskpred,
+                      margin = FALSE,
+                      at = miat,
+                      col.regions= classcolor)</code></pre>
+<p><img src="code_files/figure-html/risk-1.png" width="672" /></p>
+<pre class="r"><code>                currentDate &lt;- Sys.Date()
+                rstFileName &lt;- paste(&quot;output/riskmap&quot;,currentDate,&quot;.tif&quot;,sep=&quot;&quot;)
+                writeRaster(riskpred, 
+                            file=rstFileName, 
+                            format = &quot;GTiff&quot;, 
+                            overwrite=TRUE)
+                #NOTE should wrap this file output in function</code></pre>
+</div>
+<div id="leaf-scale-vs-canopy-scale" class="section level2">
+<h2>Leaf-scale vs canopy scale</h2>
+<p>First, we load hyperspectral leaf data from a previous study.</p>
+<pre class="r"><code>hypdata &lt;- read.csv(&#39;data/data.wo.out.binned.cut.csv&#39;, check.names = FALSE)
+hypdata &lt;- drop_class(hypdata, hypdata$Type, &quot;Healthy&quot;)
+
+speclib &lt;- raw2speclib(hypdata)</code></pre>
+<p>Plot part B of spectra:</p>
+<pre class="r"><code>spectraggII &lt;- prep_gg(hypdata)
+
+b &lt;- ggplot(spectraggII, aes(Wavelength, Reflectance, colour = Type)) +
+  geom_line(aes(linetype=Type), size = 1)+
+  geom_point(aes(shape=Type), size = 2)</code></pre>
+<p>We can resample the leaf data to the specifications of our multispectral camera.</p>
+<pre class="r"><code>center &lt;-  c(475, 560, 668, 717, 840)
+fwhm &lt;- c(20, 20, 10, 10, 40)
+
+micasense &lt;- as.data.frame(cbind(center, fwhm))
+
+data_mica &lt;- spectralResampling(speclib, micasense)
+
+micadata &lt;- as.data.frame(data_mica@spectra@spectra_ma)
+micadata &lt;- cbind(&#39;Type&#39;=hypdata$Type, micadata)</code></pre>
+<p>Plot part C</p>
+<pre class="r"><code>names(micadata) &lt;- c(&quot;Type&quot;, &quot;475&quot;, &quot;560&quot;, &quot;668&quot;, &quot;717&quot;, &quot;840&quot;)
+
+spectraggIII &lt;- prep_gg(micadata)
+
+c &lt;- ggplot(spectraggIII, aes(Wavelength, Reflectance, colour = Type)) +
+  geom_line(aes(linetype=Type), size = 1)+
+  geom_point(aes(shape=Type), size = 2)</code></pre>
+<p>Add new names for classification</p>
+<pre class="r"><code>names(micadata) &lt;- c(&quot;Type&quot;, &quot;Blue&quot;, &quot;Green&quot;, &quot;Red&quot;, &quot;RedEdge&quot;, &quot;NIR&quot;)</code></pre>
+</div>
+<div id="classification-part-b-resample" class="section level2">
+<h2>Classification Part B (Resample)</h2>
+<pre class="r"><code>inTrainingM &lt;- createDataPartition(micadata$Type, p = .75, list = FALSE)
+trainM &lt;- micadata[ inTrainingM,]
+testM  &lt;- micadata[-inTrainingM,]
+
+rfControl &lt;- trainControl(
+  method = &quot;boot&quot;,
+  number = 1
+)
+
+rfGrid &lt;- expand.grid(mtry = seq(1, ncol(trainM)-1, 1)) </code></pre>
+<p>Again, we partition the extracted pixel data in a training and test subset (1). Finally, we control the settings for the random forest training process (2-3).</p>
+<pre class="r"><code>rfFit.M &lt;- train(Type ~ ., data = trainM,
+               method = &quot;rf&quot;,
+               importance = TRUE, ntree=5,
+               trControl = rfControl, tuneGrid = rfGrid,
+               metric = &quot;Accuracy&quot;, maximize = TRUE)</code></pre>
+<p>Then we run the validation process.</p>
+<pre class="r"><code>rfPred.M &lt;- 
+  predict.train(rfFit.M, testM[, !names(testM) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;)
+
+
+Mica.Resamp.Prediction &lt;- 
+  list(fit = rfFit.M,
+  pred = predict.train(rfFit.M, testM[, !names(testM) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;),
+  confusion = confusionMatrix(rfPred.M, testM$Type),
+  varImp = varImp(rfFit.M, scale = FALSE))
+
+sink(file = &#39;output/II_ResampLeafPred.txt&#39;)
+Mica.Resamp.Prediction</code></pre>
+<pre><code>## $fit
+## Random Forest 
+## 
+## 348 samples
+##   5 predictor
+##   2 classes: &#39;Treated&#39;, &#39;Untreated&#39; 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (1 reps) 
+## Summary of sample sizes: 348 
+## Resampling results across tuning parameters:
+## 
+##   mtry  Accuracy   Kappa    
+##   1     0.7142857  0.4256774
+##   2     0.6507937  0.3015873
+##   3     0.6904762  0.3781321
+##   4     0.6507937  0.3029922
+##   5     0.7222222  0.4447243
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final value used for the model was mtry = 5.
+## 
+## $pred
+##   [1] Treated   Treated   Untreated Untreated Treated   Untreated Treated  
+##   [8] Untreated Treated   Treated   Treated   Untreated Untreated Untreated
+##  [15] Untreated Treated   Untreated Treated   Treated   Treated   Treated  
+##  [22] Untreated Treated   Treated   Treated   Treated   Treated   Treated  
+##  [29] Treated   Treated   Treated   Treated   Treated   Treated   Treated  
+##  [36] Treated   Treated   Untreated Treated   Untreated Untreated Treated  
+##  [43] Untreated Untreated Treated   Treated   Treated   Treated   Treated  
+##  [50] Untreated Treated   Treated   Treated   Treated   Untreated Treated  
+##  [57] Treated   Treated   Treated   Treated   Untreated Treated   Untreated
+##  [64] Untreated Untreated Treated   Untreated Untreated Untreated Untreated
+##  [71] Untreated Treated   Untreated Untreated Untreated Untreated Untreated
+##  [78] Treated   Untreated Untreated Untreated Treated   Untreated Untreated
+##  [85] Untreated Untreated Untreated Untreated Treated   Untreated Untreated
+##  [92] Untreated Treated   Treated   Untreated Treated   Untreated Untreated
+##  [99] Untreated Untreated Treated   Untreated Treated   Untreated Untreated
+## [106] Treated   Untreated Treated   Untreated Untreated Untreated Treated  
+## [113] Untreated Untreated Treated   Untreated
+## Levels: Treated Untreated
+## 
+## $confusion
+## Confusion Matrix and Statistics
+## 
+##            Reference
+## Prediction  Treated Untreated
+##   Treated        42        16
+##   Untreated      17        41
+##                                           
+##                Accuracy : 0.7155          
+##                  95% CI : (0.6243, 0.7954)
+##     No Information Rate : 0.5086          
+##     P-Value [Acc &gt; NIR] : 4.595e-06       
+##                                           
+##                   Kappa : 0.431           
+##  Mcnemar&#39;s Test P-Value : 1               
+##                                           
+##             Sensitivity : 0.7119          
+##             Specificity : 0.7193          
+##          Pos Pred Value : 0.7241          
+##          Neg Pred Value : 0.7069          
+##              Prevalence : 0.5086          
+##          Detection Rate : 0.3621          
+##    Detection Prevalence : 0.5000          
+##       Balanced Accuracy : 0.7156          
+##                                           
+##        &#39;Positive&#39; Class : Treated         
+##                                           
+## 
+## $varImp
+## rf variable importance
+## 
+##         Importance
+## RedEdge      4.318
+## Red          3.322
+## Green        3.107
+## NIR          1.360
+## Blue         1.146</code></pre>
+<pre class="r"><code>sink()
+
+saveRDS(Mica.Resamp.Prediction, &#39;output/II_ResampLeafPred.rds&#39;)</code></pre>
+<pre class="r"><code>toc() # Stop timing</code></pre>
+<pre><code>## RF.II: 1.1 sec elapsed</code></pre>
+</div>
+<div id="classification-part-c-aerial-2-class" class="section level2">
+<h2>Classification Part C (Aerial 2-Class)</h2>
+<p>As there is no class “SHADOW” available for the leaf data we first need to drop this class for the aerial imagery as well.</p>
+<pre class="r"><code>classif2 &lt;- DropClass(classif, classif$Type, &#39;SHD&#39;)
+unique(classif2$Type)</code></pre>
+<pre><code>## [1] UN TR
+## Levels: TR UN</code></pre>
+<p>Then we partition the data again and tune the model settings.</p>
+<pre class="r"><code>inTrainingD &lt;- createDataPartition(classif2$Type, p = .75, list = FALSE)
+trainD &lt;- classif2[ inTrainingD,]
+testD  &lt;- classif2[-inTrainingD,]
+
+rfControl &lt;- trainControl(
+  method = &quot;boot&quot;,
+  number = 1
+)
+
+rfGrid &lt;- expand.grid(mtry = seq(1, ncol(trainD)-1, 1)) </code></pre>
+<pre class="r"><code>tic(&quot;RF.III&quot;) #Start timing</code></pre>
+<p>We fit the model.</p>
+<pre class="r"><code>rfFit.D &lt;- train(Type ~ ., data = trainD,
+                 method = &quot;rf&quot;,
+                 importance = TRUE, ntree=5,
+                 trControl = rfControl, tuneGrid = rfGrid,
+                 metric = &quot;Accuracy&quot;, maximize = TRUE)</code></pre>
+<p>And validate.</p>
+<pre class="r"><code>rfPred.D &lt;- 
+  predict.train(rfFit.D, testD[, !names(testD) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;)</code></pre>
+<p>Then export the results.</p>
+<pre class="r"><code>Mica.LeafSim.Pred &lt;- 
+  list(fit = rfFit.D,
+  pred = predict.train(rfFit.D, testD[, !names(testD) %in% c(&quot;Type&quot;)], type = &quot;raw&quot;),
+  confusion = confusionMatrix(rfPred.D, testD$Type),
+  varImp = varImp(rfFit.D, scale = FALSE))
+
+sink(file = &#39;output/III_Mica.LeafSim.Prediction.txt&#39;)
+Mica.LeafSim.Pred</code></pre>
+<pre><code>## $fit
+## Random Forest 
+## 
+## 6129 samples
+##    5 predictor
+##    2 classes: &#39;TR&#39;, &#39;UN&#39; 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (1 reps) 
+## Summary of sample sizes: 6129 
+## Resampling results across tuning parameters:
+## 
+##   mtry  Accuracy   Kappa    
+##   1     0.8176575  0.6353925
+##   2     0.8110027  0.6221600
+##   3     0.8118900  0.6238510
+##   4     0.8114463  0.6229490
+##   5     0.8083407  0.6167901
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final value used for the model was mtry = 1.
+## 
+## $pred
+##    [1] TR UN UN UN UN UN TR UN UN TR UN UN UN UN TR UN TR UN UN UN UN TR TR
+##   [24] UN UN TR UN TR UN TR UN UN TR UN UN UN TR TR UN UN UN TR UN UN TR TR
+##   [47] UN UN UN UN UN TR UN UN UN TR UN UN TR UN UN UN UN TR UN UN UN UN UN
+##   [70] UN UN UN TR TR TR TR UN UN UN UN UN UN TR UN TR UN UN UN TR UN UN UN
+##   [93] UN UN UN UN UN TR UN UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [116] UN TR TR TR UN UN UN UN TR UN TR TR TR UN UN UN UN UN UN UN TR TR TR
+##  [139] UN UN TR UN UN UN UN UN UN TR TR UN UN UN UN UN UN TR TR UN UN UN UN
+##  [162] UN UN UN UN UN UN UN UN TR TR TR UN TR TR UN TR UN UN UN UN TR UN UN
+##  [185] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN TR UN UN UN UN
+##  [208] UN UN UN UN UN UN UN UN UN UN UN UN TR UN UN UN UN UN TR UN UN UN TR
+##  [231] UN UN UN TR UN UN TR UN TR UN UN UN UN UN UN TR UN UN TR TR TR UN TR
+##  [254] UN TR UN TR UN UN TR UN UN UN UN UN UN UN UN TR UN UN UN UN UN UN UN
+##  [277] UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN TR UN UN UN UN UN UN UN
+##  [300] UN TR UN UN UN TR UN UN UN UN UN UN TR UN UN UN UN UN UN UN UN UN UN
+##  [323] UN UN UN TR UN UN UN UN UN TR UN UN UN UN UN UN UN TR UN TR UN UN UN
+##  [346] UN UN UN UN UN UN UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [369] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN TR TR UN
+##  [392] TR UN UN UN TR UN UN UN UN TR TR TR UN TR UN UN TR UN UN UN UN UN UN
+##  [415] UN TR TR TR TR UN TR UN TR TR UN TR TR UN TR UN UN TR UN TR TR UN TR
+##  [438] UN UN UN UN UN TR UN UN TR TR UN UN TR UN TR UN TR UN TR TR TR UN UN
+##  [461] UN TR UN UN UN TR UN UN UN UN TR UN TR TR UN UN TR TR TR UN TR UN TR
+##  [484] TR UN UN UN UN TR TR UN TR UN TR TR TR UN UN UN UN UN UN UN UN UN UN
+##  [507] UN UN UN UN UN UN TR TR UN UN UN TR UN TR UN UN UN UN UN UN UN UN UN
+##  [530] UN UN UN UN UN UN UN UN UN UN UN UN UN TR TR UN UN UN UN UN UN UN UN
+##  [553] UN UN UN UN UN UN TR UN UN UN UN UN TR TR UN UN TR UN UN UN UN UN UN
+##  [576] UN TR UN UN UN UN UN UN UN UN TR UN UN TR UN UN UN UN UN UN UN UN UN
+##  [599] UN UN UN UN UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [622] UN UN UN UN UN UN TR UN UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [645] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [668] UN UN UN UN UN UN UN UN UN TR TR UN UN UN UN UN UN UN UN TR UN UN UN
+##  [691] UN UN UN UN UN UN UN UN UN UN UN UN UN TR UN UN UN UN UN UN UN UN UN
+##  [714] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN TR UN UN UN UN
+##  [737] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [760] UN UN UN UN UN TR UN TR UN TR UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [783] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [806] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [829] UN UN UN UN UN UN TR UN UN UN UN TR UN UN UN TR UN UN UN TR TR UN UN
+##  [852] UN UN UN UN UN UN UN UN UN UN TR UN UN TR UN UN UN UN UN UN UN UN TR
+##  [875] UN UN UN UN TR UN UN UN UN UN UN TR UN UN UN UN UN UN UN UN UN UN UN
+##  [898] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [921] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [944] UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN UN
+##  [967] TR TR UN TR UN UN UN UN UN UN UN UN TR UN UN UN UN UN UN UN TR TR UN
+##  [990] UN UN UN UN TR UN UN UN UN UN TR UN UN UN UN UN UN TR UN UN UN UN UN
+## [1013] UN TR TR UN UN TR UN UN TR UN TR UN TR TR TR UN TR TR TR TR TR TR TR
+## [1036] TR TR TR UN TR TR TR TR UN TR TR TR UN UN TR TR UN TR TR UN TR TR TR
+## [1059] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR UN TR TR TR TR
+## [1082] TR TR TR TR TR TR TR UN TR TR TR TR UN UN TR TR TR TR TR UN TR UN UN
+## [1105] TR UN TR TR TR UN UN TR TR UN UN UN TR TR TR UN TR TR TR TR TR TR TR
+## [1128] TR UN TR TR TR TR TR UN TR UN UN TR TR TR UN TR TR TR TR UN TR TR TR
+## [1151] TR TR UN TR UN TR TR TR TR TR TR TR TR UN TR TR TR TR TR TR TR TR TR
+## [1174] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [1197] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR TR TR TR TR
+## [1220] TR TR UN TR TR TR TR UN UN UN TR UN TR TR UN TR TR UN TR TR UN UN UN
+## [1243] TR TR TR TR TR UN TR TR UN TR TR UN UN UN TR TR TR TR TR TR UN UN TR
+## [1266] UN TR UN UN UN TR TR UN UN UN TR TR TR TR TR TR TR UN TR TR TR TR TR
+## [1289] UN TR UN TR UN TR UN TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR
+## [1312] TR TR TR TR UN TR UN TR TR TR TR TR UN TR TR TR TR TR TR TR UN TR TR
+## [1335] TR UN TR UN UN TR TR TR TR UN TR TR TR UN TR UN UN UN TR TR TR TR TR
+## [1358] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [1381] TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR UN TR TR TR TR TR
+## [1404] TR TR TR TR TR TR UN TR TR TR TR TR TR UN TR UN TR TR TR TR TR UN UN
+## [1427] TR TR UN TR UN TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN
+## [1450] TR TR TR TR TR UN TR TR TR UN TR TR TR TR TR UN TR TR TR TR TR TR TR
+## [1473] TR TR TR TR TR TR TR TR TR TR UN TR TR UN TR UN TR TR TR TR TR TR TR
+## [1496] TR TR TR TR TR TR UN TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR
+## [1519] TR UN UN TR TR TR UN TR UN UN TR TR TR UN TR TR UN TR TR TR TR TR TR
+## [1542] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR
+## [1565] UN TR UN TR TR TR UN UN TR TR TR TR TR TR TR TR UN TR TR TR TR TR TR
+## [1588] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN
+## [1611] TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR TR TR UN TR TR UN TR TR
+## [1634] TR TR TR TR TR TR TR UN TR TR UN TR TR TR TR TR TR TR TR TR TR TR TR
+## [1657] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [1680] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN
+## [1703] TR TR UN UN UN TR TR TR UN TR UN UN TR TR UN TR TR UN UN TR TR TR TR
+## [1726] UN TR TR TR TR UN TR TR TR TR TR TR TR TR TR TR TR UN TR TR UN UN TR
+## [1749] UN UN UN TR TR TR TR UN TR UN TR TR TR TR TR TR UN UN UN TR TR UN UN
+## [1772] UN TR TR UN UN TR TR TR UN UN UN TR UN TR TR UN TR TR TR TR TR TR UN
+## [1795] TR TR UN TR UN UN UN UN TR TR TR TR TR TR TR TR UN TR TR UN UN UN UN
+## [1818] TR UN UN UN UN TR TR UN TR UN UN TR TR UN TR TR UN UN UN TR UN UN UN
+## [1841] UN TR TR UN TR UN TR TR TR TR TR TR UN TR TR TR TR TR UN TR TR TR UN
+## [1864] UN TR TR UN UN TR TR UN UN UN TR TR TR TR TR TR TR TR TR TR TR TR UN
+## [1887] TR UN TR UN UN TR TR TR UN TR TR TR TR UN UN TR TR TR UN UN TR TR TR
+## [1910] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR UN TR
+## [1933] TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR TR TR TR TR TR TR TR TR
+## [1956] TR TR TR TR UN TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [1979] TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [2002] UN TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR TR
+## [2025] TR TR TR TR TR TR TR TR TR TR TR TR TR TR UN TR TR TR TR
+## Levels: TR UN
+## 
+## $confusion
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction  TR  UN
+##         TR 825 172
+##         UN 198 848
+##                                           
+##                Accuracy : 0.8189          
+##                  95% CI : (0.8015, 0.8354)
+##     No Information Rate : 0.5007          
+##     P-Value [Acc &gt; NIR] : &lt;2e-16          
+##                                           
+##                   Kappa : 0.6378          
+##  Mcnemar&#39;s Test P-Value : 0.1937          
+##                                           
+##             Sensitivity : 0.8065          
+##             Specificity : 0.8314          
+##          Pos Pred Value : 0.8275          
+##          Neg Pred Value : 0.8107          
+##              Prevalence : 0.5007          
+##          Detection Rate : 0.4038          
+##    Detection Prevalence : 0.4880          
+##       Balanced Accuracy : 0.8189          
+##                                           
+##        &#39;Positive&#39; Class : TR              
+##                                           
+## 
+## $varImp
+## rf variable importance
+## 
+##         Importance
+## Red          8.495
+## Green        7.433
+## NIR          5.401
+## RedEdge      4.368
+## Blue         2.466</code></pre>
+<pre class="r"><code>sink()
+
+saveRDS(Mica.LeafSim.Pred, &#39;output/III_Mica.LeafSim.Pred.rds&#39;)
+toc() # Stop timing</code></pre>
+<pre><code>## RF.III: 0.72 sec elapsed</code></pre>
+<p>It might be helpful to compare all the relevant spectra.</p>
+<pre class="r"><code>ggsave(&quot;output/Figure2.allspectra.png&quot;,
+    plot = res,
+    width = 40,
+    height = 20,
+    units = &quot;cm&quot;,
+    dpi = 400
+  )</code></pre>
+<p>NOTES</p>
+<ul>
+<li>Be careful with renaming columns for micasense bands! Check order!!</li>
+<li>Compare feature selection between classifications!</li>
+<li>How many bootstrap samples are recommended? As many as trees?</li>
+<li>Sample size between classifications?</li>
+</ul>
+</div>
+</div>
+
+<p>Copyright &copy; 2018 René Hans-Jürgen Heim</p>
+contact: rene.heim@hdr.mq.edu.au
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

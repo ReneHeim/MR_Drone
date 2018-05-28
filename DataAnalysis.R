@@ -31,8 +31,7 @@
 # Setting up coding environment ------------------------------------------------
 
 
-dir.create('data', FALSE, FALSE) #creating directories
-dir.create('R', FALSE, FALSE)
+
 dir.create('output', FALSE, FALSE)
 
 # install.packages(c("rgdal",
@@ -60,10 +59,11 @@ library(hsdar)
 library(utils)
 library(raster)
 library(rasterVis)
+library(rmarkdown)
 
 
-source("R/20171224_FUN_raw2speclibhsdar.R")#coverts spec data to hsdar lib
-source("R/20170601_FUN_DropCatVar.R")#drops factor and factor level
+source("R/FUN_raw2speclibhsdar.R")#coverts spec data to hsdar lib
+source("R/FUN_drop_cat_var.R")#drops factor and factor level
 source("R/FUN_extract_pixel.R")#extracting DN from GTIFF based on a shp file 
 
 

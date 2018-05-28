@@ -1,0 +1,72 @@
+$fit
+Random Forest 
+
+348 samples
+  5 predictor
+  2 classes: 'Treated', 'Untreated' 
+
+No pre-processing
+Resampling: Bootstrapped (100 reps) 
+Summary of sample sizes: 348, 348, 348, 348, 348, 348, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa    
+  1     0.7334553  0.4658255
+  2     0.7375813  0.4740502
+  3     0.7323256  0.4634716
+  4     0.7352867  0.4694468
+  5     0.7323376  0.4635234
+
+Accuracy was used to select the optimal model using the largest value.
+The final value used for the model was mtry = 2.
+
+$pred
+  [1] Treated   Treated   Treated   Untreated Treated   Treated   Treated   Treated   Treated   Treated   Treated   Treated   Untreated
+ [14] Untreated Treated   Treated   Treated   Treated   Treated   Treated   Treated   Treated   Treated   Untreated Treated   Treated  
+ [27] Treated   Treated   Treated   Treated   Treated   Treated   Untreated Untreated Treated   Treated   Treated   Treated   Treated  
+ [40] Treated   Treated   Treated   Treated   Treated   Treated   Untreated Treated   Treated   Untreated Treated   Treated   Treated  
+ [53] Treated   Treated   Treated   Treated   Treated   Treated   Treated   Treated   Untreated Untreated Untreated Untreated Treated  
+ [66] Treated   Untreated Untreated Treated   Untreated Untreated Untreated Untreated Untreated Untreated Untreated Treated   Untreated
+ [79] Treated   Treated   Untreated Untreated Treated   Untreated Treated   Untreated Untreated Untreated Treated   Untreated Untreated
+ [92] Untreated Untreated Treated   Untreated Untreated Treated   Treated   Treated   Treated   Untreated Treated   Untreated Untreated
+[105] Untreated Untreated Untreated Treated   Untreated Treated   Treated   Untreated Untreated Untreated Untreated Untreated
+Levels: Treated Untreated
+
+$confusion
+Confusion Matrix and Statistics
+
+           Reference
+Prediction  Treated Untreated
+  Treated        51        19
+  Untreated       8        38
+                                          
+               Accuracy : 0.7672          
+                 95% CI : (0.6797, 0.8407)
+    No Information Rate : 0.5086          
+    P-Value [Acc > NIR] : 9.35e-09        
+                                          
+                  Kappa : 0.5328          
+ Mcnemar's Test P-Value : 0.05429         
+                                          
+            Sensitivity : 0.8644          
+            Specificity : 0.6667          
+         Pos Pred Value : 0.7286          
+         Neg Pred Value : 0.8261          
+             Prevalence : 0.5086          
+         Detection Rate : 0.4397          
+   Detection Prevalence : 0.6034          
+      Balanced Accuracy : 0.7655          
+                                          
+       'Positive' Class : Treated         
+                                          
+
+$varImp
+rf variable importance
+
+        Importance
+RedEdge     24.755
+Green       19.786
+Red         14.138
+Blue        12.438
+NIR          7.677
+

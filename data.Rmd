@@ -1,0 +1,27 @@
+% Data 
+
+## Raw data 
+
+In our previous study (Heim et al., 2018), leaf spectral data was collected on 
+a lemon myrtle (_Backhousia citriodora_) plantation in northern New South Wales, 
+Australia [28.6911090 S, 124 153.295480 E](https://goo.gl/maps/3zDQJfcQQf52), 
+and were organized in a single `csv` file. 
+
+* Column 1: __Type__ is a categorical variables referring to the spectral 
+classes ("Healthy", "Treated" and "Untreated"). 
+
+* Column 2 and follwoing: __X505-X2500__ are the wavebands along the 
+electromagnetic spectrum and have been recorded, using a field spectrometer, in
+spectral reflectance [%].
+
+
+Please refer to our previous article (Heim et al., 2018a) for more information:
+
+Heim, R. H., Wright, I. J., Chang, H. , Carnegie, A. J., Pegg, G. S., Lancaster, 
+E. K., Falster, D. S. and Oldeland, J. (2018), Detecting myrtle rust 
+(Austropuccinia psidii) on lemon myrtle trees using spectral signatures and 
+machine learning. Plant Pathol, 67: 1114-1121. [doi:10.1111/ppa.12830](https://doi:10.1111/ppa.12830)
+
+## Download 
+
+Data can be downloaded from project GitHub repository. ADD LINK
