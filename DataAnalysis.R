@@ -61,7 +61,7 @@ library(knitr)
 library(reshape2)
 library(cowplot)
 library(VSURF)
-
+library(dplyr)
 
 source("R/FUN_raw2speclibhsdar.R")#coverts spec data to hsdar lib
 source("R/FUN_drop_cat_var.R")#drops factor and factor level
@@ -78,12 +78,12 @@ img <-
 img <- img/65535
   
 ndvi <- (img$X20180528_ortho_ground.5-img$X20180528_ortho_ground.3)/(img$X20180528_ortho_ground.5+img$X20180528_ortho_ground.3)
-cal <- img$X20180528_ortho_ground.2/img$X20180528_ortho_ground.3
+rg <- img$X20180528_ortho_ground.2/img$X20180528_ortho_ground.3
 sipi <- (img$X20180528_ortho_ground.5-img$X20180528_ortho_ground.1)/(img$X20180528_ortho_ground.5-img$X20180528_ortho_ground.3)
 ari <- (1/img$X20180528_ortho_ground.2)-(1/img$X20180528_ortho_ground.4)
-img <- addLayer(img, c(ndvi, cal, sipi, ari))
+img <- addLayer(img, c(ndvi, rg, sipi, ari))
 
-names(img) <- c("blue", "green", "red", "re", "nir", "alpha", "ndvi", "cal", "sipi", "ari")
+names(img) <- c("blue", "green", "red", "re", "nir", "alpha", "ndvi", "rg", "sipi", "ari")
 
 # Loading QGIS shape file where sample polygons have been defined (3)
 alldata <- shapefile("data/samplepolygons.shp") #3
@@ -136,7 +136,7 @@ names(dfAll)[11] <- c("Type") #15
 
 
 dfAll <- dfAll[,c(11,1,2,3,4,5,7,8,9,10)]
-names(dfAll) <- c("Type","blue", "green", "red", "re", "nir", "ndvi", "cal", "sipi", "ari")
+names(dfAll) <- c("Type","blue", "green", "red", "re", "nir", "ndvi", "rg", "sipi", "ari")
 
 # Save (17) and reload (18) df containing reflectance values and classes stored 
 # in the "Type" column. Also remove alpha (transparency) channel (19) as it is 
@@ -150,295 +150,342 @@ classif <- read.csv("output/2018MyrtleRust_Refl.csv", check.names = FALSE) #18
 
 
 
-# Finally, re-assign (22) and rename (23) column names of the just exportet df 
+# Finally, re-assign (22) and rename (23) column names of the just exported df 
 # to prepare (24) the data for a ggplot2 output (wide to long format). Plot (25)
-# spectra to build Figure X.
+# spectra to build Figure 2B(C).
 
-gplot <- classif[,1:6]
+gplot <- classif[,1:6] #22
 
-names(gplot) <- c("Type","475", "560", "668", "717", "840")
+names(gplot) <- c("Type","475", "560", "668", "717", "840") #23
 
-spectragg <- prep_gg(gplot) #24
+spectragg <- prep_gg(gplot, agg = TRUE) #24
 
-a <- ggplot(spectragg, aes(Wavelength, Reflectance, colour = Type)) +
+C <- ggplot(spectragg, aes(Wavelength, Reflectance*100, colour = Type)) +
   geom_line(aes(linetype=Type), size = 1)+
-  geom_point(aes(shape=Type), size = 2) #25
+  geom_point(aes(shape=Type), size = 2)+
+  scale_color_manual(values=c("#525252", "#00CD00", "#cd5c00"))+
+  labs(x = "", y = "")+
+  theme_minimal(base_size=20)+
+  theme(legend.title = element_blank(),
+        legend.key.width = unit(1.5, "cm"))#25
+
+# Now we drop the "shadow" class (26), rename the columns (27), convert wide to 
+# long format (28) and create Figure 2B(C-S) (29).
+
+dropSHD <- drop_class(classif, classif$Type, "SHD")
+dropSHD <- dropSHD[,1:6] #26
+names(dropSHD) <- c("Type","475", "560", "668", "717", "840") #27
+
+spectraggdropSHD <- prep_gg(dropSHD, agg = TRUE) #28
+
+C_S <- ggplot(spectraggdropSHD, aes(Wavelength, Reflectance*100, colour = Type)) +
+  geom_line(aes(linetype=Type), size = 1)+
+  geom_point(aes(shape=Type), size = 2)+
+  scale_color_manual(values=c("#00CD00", "#cd5c00"))+
+  labs(x = "", y = "")+
+  theme_minimal(base_size=20)+
+  theme(legend.title = element_blank(),
+        legend.key.width = unit(1.5, "cm"))#29
 
 # RF (all classes)--------------------------------------------------------------
 
-# First we set a seed (26) to avoid random number generation in vulnerable 
+# First we set a seed (30) to avoid random number generation in vulnerable 
 # processes. Then we partition the extracted pixel data in a training and 
-# test subset (27). Finally, we tune the settings for the random forest 
-# training process (28, 29).
+# test subset (31). Finally, we tune the settings for the random forest 
+# training process (32, 33).
 
-#set.seed(20180524) #26
+#set.seed(20180524) #30
 
 inTraining <- createDataPartition(classif$Type, p = .75, list = FALSE)
 train <- classif[ inTraining,]
-test  <- classif[-inTraining,] #27
+test  <- classif[-inTraining,] #31
 
 rfControl <- trainControl(
   method = "boot",
   number = 100
-) #28
+) #32
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #29
+rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #33
 
-# Then we initialize a timer (30) to measure the computation time of the 
-# training (31) and prediction (32) process. We stop timing (33). Then, we can 
-# assign (34) and export (35) a report of our classification. We are also 
-# saving (36) the model object to reload (37) and save time when re-running 
+# Then we initialize a timer (34) to measure the computation time of the 
+# training (35) and prediction (36) process. We stop timing (37). Then, we can 
+# assign (38) and export (39) a report of our classification. We are also 
+# saving (40) the model object to reload (41) and save time when re-running 
 # the code.
 
-tic("RF.I") #30
+tic("RF.I") #34
 
 rfFit <- train(Type ~ ., data = train,
                method = "rf",
                importance = TRUE, ntree=500,
                trControl = rfControl, tuneGrid = rfGrid,
-               metric = "Accuracy", maximize = TRUE) #31
+               metric = "Accuracy", maximize = TRUE) #35
 
 rfPred <- 
-  predict.train(rfFit, test[, !names(test) %in% c("Type")], type = "raw") #32
+  predict.train(rfFit, test[, !names(test) %in% c("Type")], type = "raw") #36
 
-toc() #33
+toc() #37
 
-Mica.Prediction <- 
+canopydata <- 
   list(fit = rfFit,
        pred = predict.train(rfFit, test[, !names(test) %in% c("Type")], type = "raw"),
        confusion = confusionMatrix(rfPred, test$Type),
-       varImp = varImp(rfFit, scale = TRUE)) #34
+       varImp = varImp(rfFit, scale = TRUE)) #38
 
-sink(file = 'output/I_micadata_report.txt')
-Mica.Prediction #35
+sink(file = 'output/I_canopydata_report.txt')
+canopydata #39
 sink()
 
-saveRDS(Mica.Prediction, 'output/I_micadata_object.rds') #36
-Mica.Prediction <- readRDS("output/I_micadata_object.rds") #37
+saveRDS(canopydata, 'output/I_canopydata_object.rds') #40
+canopydata <- readRDS("output/I_canopydata_object.rds") #41
 
-# Feature selection I
+# Feature selection canopydata
+
+# Here (42) we select relevant classification features for the canopy dataset.
+# Also, we export the object containing the features (43), create a relative version 
+# of ranked features (44), an absolute version (45), combine them (46), 
+# rename these objects (47) and export them as a table (48).
 
 fs.1 <- VSURF(classif[,2:10], 
              classif[,1], 
              clusterType = "FORK", 
-             ntree = 500,mtry = 4) #warning can be ignored
+             ntree = 500,mtry = 4) #42
 
-saveRDS(fs.1, 'output/I_fs_canopy.rds')
+#warning can be ignored. set mtry = best model reported in canopydata_report.txt
 
-fs.norm.1 <- (fs.1$imp.varselect.thres-min(fs.1$imp.varselect.thres))/(max(fs.1$imp.varselect.thres)-min(fs.1$imp.varselect.thres))
+
+saveRDS(fs.1, 'output/I_fs_canopy.rds') #43
+
+fs.norm.1 <- (fs.1$imp.varselect.thres-min(fs.1$imp.varselect.thres))/
+  (max(fs.1$imp.varselect.thres)-min(fs.1$imp.varselect.thres)) #44
 
 out <- classif[,-1]
-vi.I <- rbind(names(out[,as.numeric(fs.1$varselect.thres)]),
-              round(fs.1$imp.varselect.thres,2), 
-              round(fs.norm.1, 2))
+varimp.canopy <- rbind(names(out[,as.numeric(fs.1$varselect.thres)]),
+              round(fs.1$imp.varselect.thres,2), #45
+              round(fs.norm.1, 2)) #46
 
-row.names(vi.I) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.')
+row.names(varimp.canopy) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.') #47
 
 
-write.csv(vi.I, 'output/vi.I.csv', row.names = TRUE)
+write.csv(varimp.canopy, 'output/varimp.canopy.csv', row.names = TRUE) #48
 
 # RiskMap ----------------------------------------------------------------------
 
-# Import a brick image (38), similar to the one imported initially (see #1). Any
+# Import a brick image (49), similar to the one imported initially (see #1). Any
 # ground pixel has been removed (Agisoft Photoscan Pro) to have only the lemon
 # myrtle trees available. The image can be used to test the model by predicted 
-# the class of each pixel in this images. To nicely display the image, we set 
-# background pixel as being tranparent (39). Then, we remove the alpha channel
-# (40) which was not used as a predictor variable, divide by the max DN value
-# (41) and rename (42) the bands to match the data on which we trained the 
-# random forest model. Now we can predict the pixel-classes (43) and plot (44)
-# and export the result (45).
+# the class of each pixel in this images. To display the image, we set 
+# background pixel as being tranparent (50) by removing the alpha channel
+# which was not used as a predictor variable, divide by the max DN value
+# (51) and rename (52) the bands to match the data on which we trained the 
+# random forest model. Now we can predict the pixel-classes (53) and plot (54)
+# and export the result (55).
 
-imgpred <-  brick("data/20180528_ortho_no_ground.tif")
+imgpred <-  brick("data/20180528_ortho_no_ground.tif") #49
 
-imgpred <- imgpred/65535
+imgpred <- imgpred/65535 #51
 
 ndvi.p <- (imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.3)/(imgpred$X20180528_ortho_no_ground.5+imgpred$X20180528_ortho_no_ground.3)
-cal.p <- imgpred$X20180528_ortho_no_ground.2/imgpred$X20180528_ortho_no_ground.3
+rg.p <- imgpred$X20180528_ortho_no_ground.2/imgpred$X20180528_ortho_no_ground.3
 sipi.p <- (imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.1)/(imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.3)
 ari.p <- (1/imgpred$X20180528_ortho_no_ground.2)-(1/imgpred$X20180528_ortho_no_ground.4)
 
 imgpred <- addLayer(imgpred, c(ndvi.p, cal.p, sipi.p, ari.p))
 
-names(imgpred) <- c("blue", "green", "red", "re", "nir", "alpha", "ndvi", "cal", "sipi", "ari")
+names(imgpred) <- c("blue", "green", "red", "re", "nir", "alpha", "ndvi", "rg", "sipi", "ari") #52
 
-riskpre <- imgpred[[c(1,2,3,4,5,7,8,9,10)]] # remove alpha/transparency channel as it 
+riskpre <- imgpred[[c(1,2,3,4,5,7,8,9,10)]] #50 remove alpha channel for transparancy
 
 
 
-riskpred <- predict(riskpre, Mica.Prediction$fit)
+riskpred <- predict(riskpre, canopydata$fit) #53
 
-plot(riskpred)
+plot(riskpred) #54
 
 currentDate <- Sys.Date()
 rstFileName <- paste("output/riskmap",currentDate,".tif",sep="")
-writeRaster(riskpred, file=rstFileName, format = "GTiff", bylayer=TRUE, overwrite=TRUE) #45
+writeRaster(riskpred, file=rstFileName, format = "GTiff", bylayer=TRUE, overwrite=TRUE) #55
 
-
+# Note: The exported risk map was further processed in QGIS to change class colours
+# and have it publication ready
 
 # SECTION B --------------------------------------------------------------------
 
 # In this section, we code the analysis to compare leaf-scale vs canopy scale 
-# classification results. Therefore, we import some leaf spectral reflectance
-# data (46) that was recorded on the same plants but in a previous study. Then,
-# we drop (47) the class "Healthy" as this was not recorded on the plantation 
-# where the aerial imagery was captured. We create a spectral library (48) to 
+# classification results. Therefore, we import leaf spectral reflectance
+# data (56) that was recorded on the same plants but in a previous study. Then,
+# we drop (57) the class "Healthy" as this was not recorded on the plantation 
+# where the aerial imagery was captured. We create a spectral library (58) to 
 # make use of the hsdar package and then resample the hyperspectral data to 
-# the Micasense RedEdge band specifications (49-52).
+# the Micasense RedEdge band specifications (59-62).
 
 hypdata <- 
-  read.csv('data/data.wo.out.binned.cut.csv', check.names = FALSE) %>% #46
+  read.csv('data/data.wo.out.binned.cut.csv', check.names = FALSE) %>% #56
   drop_class(., .$Type, "Healthy") %>% 
-  .[,1:36]#47
+  .[,1:36]#57
 
-speclib2 <- raw2speclib(hypdata) #48
+speclib2 <- raw2speclib(hypdata) #58
 
-center <-  c(475, 560, 668, 717, 840) #49
-fwhm <- c(20, 20, 10, 10, 40) #50
-micasense <- as.data.frame(cbind(center, fwhm)) #51
+center <-  c(475, 560, 668, 717, 840) #59
+fwhm <- c(20, 20, 10, 10, 40) #60
+micasense <- as.data.frame(cbind(center, fwhm)) #61
 
-data_mica <- spectralResampling(speclib2, micasense) #52
+data_mica <- spectralResampling(speclib2, micasense) #62
 
-# Now we would like to use the resampled data (leaf scale) for classification to 
+# Now we would like to use the resampled data (leaf scale = L) for classification to 
 # then compare it with the data that was captured on the canopy level (Micasense
-# RedEdge). We extract the data from our spectral library (55) and add a "Type"
-# column to assign the classes (56). We also rename the columns according to the 
-# Micasense RedEdge bands (57).
+# RedEdge). We extract the data from our spectral library (65) and add a "Type"
+# column to assign the classes (66). We also rename the columns according to the 
+# Micasense RedEdge bands (67).
 
-micadata <- as.data.frame(data_mica@spectra@spectra_ma) #55
-micadata <- cbind('Type'=hypdata$Type, micadata) #56
+micadata <- as.data.frame(data_mica@spectra@spectra_ma) #65
+micadata <- cbind('Type'=hypdata$Type, micadata) #66
 
-names(micadata) <- c("Type", "blue", "green", "red", "re", "nir") #57
+names(micadata) <- c("Type", "blue", "green", "red", "re", "nir") #67
 
-# We plot the hyperspectral leaf data (53) and also the resampled version (54) 
-# for Figure X.
+# We plot the hyperspectral leaf data (68) to check if the export worked and
+# then plot the resampled version (69) to include it in Figure 2B (L).
 
-spectraggII <- prep_gg(hypdata)
+spectraggII <- prep_gg(hypdata, agg = TRUE)
 
-b <- ggplot(spectraggII, aes(Wavelength, Reflectance, colour = Type)) +
+spectraggII <- spectraggII %>% 
+  mutate(Type = recode(Type, `Treated` = "TR", `Untreated` = "UN"))
+
+hyperplot <- ggplot(spectraggII, aes(Wavelength, Reflectance, colour = Type)) +
   geom_line(aes(linetype=Type), size = 1)+
-  geom_point(aes(shape=Type), size = 2) #53
+  geom_point(aes(shape=Type), size = 2)+
+  scale_color_manual(values=c("#00CD00", "#cd5c00"))+
+  labs(x = "Wavelength [nm]", y = "Reflectance [%]")#68
 
 mplot <- micadata
 names(mplot) <- c("Type", "475", "560", "668", "717", "840")
 
-spectraggIII <- prep_gg(mplot)
+spectraggIII <- prep_gg(mplot, agg = TRUE)
 
-c <- ggplot(spectraggIII, aes(Wavelength, Reflectance, colour = Type)) +
+spectraggIII <- spectraggIII %>% 
+  mutate(Type = recode(Type, `Treated` = "TR", `Untreated` = "UN"))
+
+L <- ggplot(spectraggIII, aes(Wavelength, Reflectance, colour = Type)) +
   geom_line(aes(linetype=Type), size = 1)+
-  geom_point(aes(shape=Type), size = 2) #54
+  geom_point(aes(shape=Type), size = 2)+
+  scale_color_manual(values=c("#00CD00", "#cd5c00"))+
+  labs(x = "", y = "")+
+  theme_minimal(base_size=20)+
+  theme(legend.title = element_blank(),
+        legend.key.width = unit(1.5, "cm"))#69
 
-# Add indices
+# Create spectral vegetation indices (SVI) to be included in the classification
 
-cal2 <- '560/668'
-sipi2 <- '(840-475)/(840-668)'
-ari2 <- '(1/560)-(1/717)'
+rgsvi <- '560/668'
+sipisvi <- '(840-475)/(840-668)'
+arisvi <- '(1/560)-(1/717)'
 
-SIPI2 <- vegindex(speclib2, sipi2)
+SIPI2 <- vegindex(speclib2, sipisvi)
 NDVI2 <- vegindex(speclib2, "NDVI")
-Calderon2 <- vegindex(speclib2, cal2)
-ARI2 <- vegindex(speclib2, ari2)
+RG <- vegindex(speclib2, rgsvi)
+ARI2 <- vegindex(speclib2, arisvi)
 
-micadata.ind <- cbind(micadata, NDVI2, SIPI2, Calderon2, ARI2)
+micadata.ind <- cbind(micadata, NDVI2, SIPI2, RG, ARI2)
 
 
 # RF (Leaf) --------------------------------------------------------------------
 
-# The seed from our previous classification is still active (#26). We partition 
-# the resampled data (58) in a training (59) and test (60) subset. We tune the 
-# settings for the random forest training process (61, 62).
+# The seed from our previous classification is still active (#30). We partition 
+# the resampled data (70) in a training (71) and test (72) subset. We tune the 
+# settings for the random forest training process (73, 73).
 
 
-inTrainingM <- createDataPartition(micadata.ind$Type, p = .75, list = FALSE) #58
-trainM <- micadata.ind[ inTrainingM,] #59
-testM  <- micadata.ind[-inTrainingM,] #60
+inTrainingM <- createDataPartition(micadata.ind$Type, p = .75, list = FALSE) #70
+trainM <- micadata.ind[ inTrainingM,] #71
+testM  <- micadata.ind[-inTrainingM,] #72
 
 rfControl <- trainControl(
   method = "boot",
   number = 100
-) #61
+) #73
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(trainM)-1, 1)) #62
+rfGrid <- expand.grid(mtry = seq(1, ncol(trainM)-1, 1)) #74
 
-# Again, we initialize a timer (63) to measure the computation time of the 
-# training (64) and prediction (65) process. We stop timing (66). Then, we can 
-# assign (67) and export (68) a report of our classification. We are also 
-# saving (69) the model object to reload (70) and save time when re-running 
+# Again, we initialize a timer (74) to measure the computation time of the 
+# training (75) and prediction (76) process. We stop timing (77). Then, we can 
+# assign (78) and export (79) a report of our classification. We are also 
+# saving (80) the model object to reload (81) and save time when re-running 
 # the code.
 
-tic("RF.II") #63
+tic("RF.II") #74
 
 rfFit.M <- train(Type ~ ., data = trainM,
                  method = "rf",
                  importance = TRUE, ntree=500,
                  trControl = rfControl, tuneGrid = rfGrid,
-                 metric = "Accuracy", maximize = TRUE) #64
+                 metric = "Accuracy", maximize = TRUE) #75
 
-rfPred.M <- #65
+rfPred.M <- #76
   predict.train(rfFit.M, testM[, !names(testM) %in% c("Type")], type = "raw")
 
-toc() #66
+toc() #77
 
-mica.leaf.pred <- 
+leafdata <- 
   list(fit = rfFit.M,
        pred = predict.train(rfFit.M, testM[, !names(testM) %in% c("Type")], type = "raw"),
        confusion = confusionMatrix(rfPred.M, testM$Type),
-       varImp = varImp(rfFit.M, scale = TRUE)) #67
+       varImp = varImp(rfFit.M, scale = TRUE)) #78
 
-sink(file = 'output/II_leaf_report.txt')
-mica.leaf.pred #68
+sink(file = 'output/II_leafdata_report.txt')
+leafdata #79
 sink()
 
-saveRDS(mica.leaf.pred, 'output/II_leaf_object.rds') #69
-#mica.leaf.pred <- readRDS("output/II_leaf_object.rds") #70
+saveRDS(leafdata, 'output/II_leafdata_object.rds') #80
+#leafdata <- readRDS("output/II_leafdata_object.rds") #81
 
-# Feature selection II
+# Feature selection leafdata
 
 fs.2 <- VSURF(micadata.ind[,2:10], 
               micadata[,1], 
               clusterType = "FORK", 
               ntree = 500,mtry = 4)
 
-saveRDS(fs.2, 'output/II_fs_leafres.rds')
+saveRDS(fs.2, 'output/II_fs_leafdata.rds')
 
-fs.norm.2 <- (fs.2$imp.varselect.thres-min(fs.2$imp.varselect.thres))/(max(fs.2$imp.varselect.thres)-min(fs.2$imp.varselect.thres))
+fs.norm.2 <- (fs.2$imp.varselect.thres-min(fs.2$imp.varselect.thres))/
+  (max(fs.2$imp.varselect.thres)-min(fs.2$imp.varselect.thres))
 
 out2 <- micadata.ind[,-1]
-vi.II <- rbind(names(out2[,as.numeric(fs.2$varselect.thres)]),
+varimp.leaf <- rbind(names(out2[,as.numeric(fs.2$varselect.thres)]),
               round(fs.2$imp.varselect.thres,2), 
               round(fs.norm.2, 2))
 
-row.names(vi.II) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.')
+row.names(varimp.leaf) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.')
 
 
-write.csv(vi.II, 'output/vi.II.csv', row.names = TRUE)
+write.csv(varimp.leaf, 'output/varimp.leaf.csv', row.names = TRUE)
 
-# RF (Canopy) ------------------------------------------------------------------
+# RF (Canopy without class "Shadow") -------------------------------------------
 
 # Now, we have to repeat the classification using the aerial imagery again. This
-# time, we drop the class 'SHADOW' (71). This class was not collected for the 
+# time, we drop the class 'SHADOW' (82). This class was not collected for the 
 # leaf spectral data and we want to have a fair comparison between leaf-scale 
-# and canopy-scale. We can test if the factor levels were dropped (72).
+# and canopy-scale. We can test if the factor levels were dropped (83).
 
-classif2 <- drop_class(classif, classif$Type, 'SHD') #71
-unique(classif2$Type) #72
+classif2 <- drop_class(classif, classif$Type, 'SHD') #82
+unique(classif2$Type) #83
 
 
-# We can repeat the data partition (73-75), tune the random forest settings 
-# (76-77) and then start the training (78) and prediction (79) process. We 
-# assign (80) and export (81) a report of our classification. We are also 
-# saving (82) the model object to reload (83) if necessary.
+# We can repeat the data partition (84-86), tune the random forest settings 
+# (87-89) and then start the training (90) and prediction (91) process. We 
+# export (92) a report of our classification. We are also saving (93) the model 
+# object to reload (94) if necessary.
 
-inTrainingD <- createDataPartition(classif2$Type, p = .75, list = FALSE) #73
-trainD <- classif2[ inTrainingD,] #74
-testD  <- classif2[-inTrainingD,] #75
+inTrainingD <- createDataPartition(classif2$Type, p = .75, list = FALSE) #84
+trainD <- classif2[ inTrainingD,] #85
+testD  <- classif2[-inTrainingD,] #86
 
 rfControl <- trainControl(
   method = "boot",
   number = 100
-) #76
+) #87
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(trainD)-1, 1)) #77
+rfGrid <- expand.grid(mtry = seq(1, ncol(trainD)-1, 1)) #88
 
 tic("RF.III")
 
@@ -446,27 +493,27 @@ rfFit.D <- train(Type ~ ., data = trainD,
                  method = "rf",
                  importance = TRUE, ntree=500,
                  trControl = rfControl, tuneGrid = rfGrid,
-                 metric = "Accuracy", maximize = TRUE) #78
+                 metric = "Accuracy", maximize = TRUE) #89
 
-rfPred.D <- #79
+rfPred.D <- #90
   predict.train(rfFit.D, testD[, !names(testD) %in% c("Type")], type = "raw")
 
 toc()
 
-mica.canopy.pred <- #80
+canopywoshddata <- #91
   list(fit = rfFit.D,
        pred = predict.train(rfFit.D, testD[, !names(testD) %in% c("Type")], type = "raw"),
        confusion = confusionMatrix(rfPred.D, testD$Type),
        varImp = varImp(rfFit.D, scale = TRUE))
 
-sink(file = 'output/III_canopy_report.txt')
-mica.canopy.pred #81
+sink(file = 'output/III_canopywoshddata_report.txt')
+canopywoshddata #92
 sink()
 
-saveRDS(mica.canopy.pred, 'output/III_canopy_object.rds') #82
-#mica.canopy.pred <- readRDS("output/II_canopy_object.rds") #83
+saveRDS(canopywoshddata, 'output/III_canopywoshddata_object.rds') #93
+#canopywoshddata <- readRDS("output/III_canopywoshddata_object.rds") #94
 
-# Feature selection III
+# Feature selection canopy data without shadow class
 
 fs.3 <- VSURF(classif2[,2:10], 
               classif2[,1], 
@@ -475,25 +522,26 @@ fs.3 <- VSURF(classif2[,2:10],
 
 saveRDS(fs.3, 'output/III_fs_canopy2.rds')
 
-fs.norm.3 <- (fs.3$imp.varselect.thres-min(fs.3$imp.varselect.thres))/(max(fs.3$imp.varselect.thres)-min(fs.3$imp.varselect.thres))
+fs.norm.3 <- (fs.3$imp.varselect.thres-min(fs.3$imp.varselect.thres))/
+  (max(fs.3$imp.varselect.thres)-min(fs.3$imp.varselect.thres))
 
 out3 <- classif2[,-1]
-vi.III <- rbind(names(out3[,as.numeric(fs.3$varselect.thres)]),
+varimp.canopywoshd <- rbind(names(out3[,as.numeric(fs.3$varselect.thres)]),
                round(fs.3$imp.varselect.thres,2), 
                round(fs.norm.3, 2))
 
-row.names(vi.III) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.')
+row.names(varimp.canopywoshd) <- c('Predictor', 'Abs. Imp.', 'Rel. Imp.')
 
 
-write.csv(vi.III, 'output/vi.III.csv', row.names = TRUE)
+write.csv(varimp.canopywoshd, 'output/varimp.canopywoshd.csv', row.names = TRUE)
 
-# It might be helpful to compare all the relevant spectra.
+# Plot all multispectral signatures to yield Figure 2B
 
 res <- ggdraw() +
-  draw_plot(a, x = 0, y = .66, width = 1, height = .33)+
-  draw_plot(b, x = 0, y = .33, width = 1, height = .33) +
-  draw_plot(c, x = 0, y = 0, width = 1, height = .33) +
-  draw_plot_label(label = c("A", "B", "C"), size = 12,
+  draw_plot(C, x = 0, y = .66, width = 1, height = .33)+
+  draw_plot(C_S, x = 0, y = .33, width = 1, height = .33) +
+  draw_plot(L, x = 0, y = 0, width = 1, height = .33) +
+  draw_plot_label(label = c("", "", ""), size = 18,
                   x = c(.12,.12,.12), y = c(0.99,0.66,0.33))
 
 ggsave("output/Figure2.allspectra.png",
@@ -503,4 +551,5 @@ ggsave("output/Figure2.allspectra.png",
        units = "cm",
        dpi = 400
 )
+
 #END
