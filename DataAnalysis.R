@@ -1,7 +1,7 @@
 ####
 # The following code reproduces results of the article:
 # 
-# Heim, Wright, Carnegie, Taylor, Scarth and Oldeland, 2018. Using drones and 
+# Heim, Wright, Carnegie, Taylor, Scarth and Oldeland, 2019. Using drones and 
 # multispectral imagery to detect myrtle rust on a lemon myrtle plantation. Drones
 #
 # The code is split in two major sections according to our research questions.
@@ -18,50 +18,44 @@
 dir.create('output', FALSE, FALSE)
 
 # install.packages(c("rgdal", 
-#                    "raster", 
-#                    "roxygen2",
-#                    "tictoc", 
-#                    "tidyverse", 
+#                    "raster",
+#                    "reshape2",
+#                    "ggplot2", 
 #                    "caret",
 #                    "e1071", 
-#                    "gdata", 
-#                    "hsdar", 
-#                    "utils", 
-#                    "magrittr", 
-#                    "rasterVis",  
-#                    "rmarkdown"))
+#                    "gdata",
+#                    "rasterVis",
+#                    "corrplot"))
 
-library(rgdal) #load installed pkgs
-library(corrplot)
-library(raster)
-library(ggplot2)
-library(tictoc)
-library(caret)
-#library(gdata)
-library(reshape2)
-library(rasterVis)
-#library(magrittr)
-#library(knitr)
-library(cowplot)
-library(VSURF)
-#library(dplyr)
+library(rgdal)#extract reflectance values
+library(corrplot)#test if predictor vars are correlated
+library(raster)#extract reflectance values
+library(ggplot2)#figure 3
+library(caret)#machine learning library
+library(gdata)#required for drop_class()
+library(reshape2)#for prep_gg function, reshaping spectra to use ggplot2
+library(rasterVis)#modify risk map (Part D)
+library(VSURF)#feature selection
 
 
-source("R/FUN_drop_cat_var.R")#drops factor and factor level
-source("R/FUN_extract_polyclass.R")
-source("R/FUN_prepggwide2long.R")
-source("R/FUN_VSURF_table.R")
+
+source("R/FUN_drop_cat_var.R")#drops factor and according factor level
+source("R/FUN_extract_polyclass.R")#extract reflectance and index values
+source("R/FUN_prepggwide2long.R")#reshape spectral data for ggplot
+source("R/FUN_VSURF_table.R")#create feature selection output
 
 # PART A------------------------Cleaning Data-----------------------------------
 
-# Loading image brick (1), convert to reflectance (2) and calculate indices (3).
-# Also the band names were renamed for clarity according to camera manufacturer
-# specifications (4).
+# Loading image brick.
 
-img <-
-  brick("data/20180528_ortho_ground.tif") #(1)
+  img <-
+    brick("data/20180528_ortho_ground.tif")
 
-img <- img/65535 #(2)
+# Convert from DN to reflectance.
+
+  img <- img/65535
+
+# Calculate indices and rename bands for clarity (MicaSense RedEdge Camera)
 
   names(img) <- c("blue", "green", "red", "re", 
                 "nir", "alpha")
@@ -71,44 +65,48 @@ img <- img/65535 #(2)
     sipi <- (img$nir-img$blue)/(img$nir-img$red)
     ari <- (1/img$green)-(1/img$re)
 
-      img <- addLayer(img, c(ndvi, rg, sipi, ari)) #(3)
+      img <- addLayer(img, c(ndvi, rg, sipi, ari))
 
   names(img) <- c("blue", "green", "red", "re", 
-                "nir", "alpha", "ndvi", "rg", "sipi", "ari") #(4)
+                "nir", "alpha", "ndvi", "rg", "sipi", "ari")
 
-# Loading QGIS shape file (5) where sample polygons have been defined and
-# extracting pixel from sample polygons (6). Then check data if everything 
-# worked (7)
+# Loading QGIS shape file where sample polygons have been defined.
 
-allclasses <- shapefile("data/samplepolygons.shp") #5
+  allclasses <- shapefile("data/samplepolygons.shp")
+  
+# Check what classes are contained
 
-  unique(allclasses@data$Class) # To check what classes are contained
+  unique(allclasses@data$Class)
+    
+# Extract reflectance values from pixels based on sample polygons.
 
-    allclasses.df<- extract_polyclass(allclasses, img)
+  allclasses.df<- extract_polyclass(allclasses, img)
+  
+# Check if all classes were imported
 
-  unique(allclasses.df$Class) #Check if all classes were imported
+  unique(allclasses.df$Class) 
 
 # Check for NAs
 
-apply(allclasses.df, 2, function(x) any(is.na(x)))
+  apply(allclasses.df, 2, function(x) any(is.na(x)))
 
   #full.df.wona <- na.omit(full.df) If NAs contained, they can be removed.
 
-summary(allclasses.df$Class)
+  summary(allclasses.df$Class)
   #summary(full.df.wona$Class)
   #summary(full.df$Class)-summary(full.df.wona$Class)
 
-allclasses.noalpha.df <- 
-  allclasses.df[ , -which(names(allclasses.df) %in% c("alpha"))] #remove alpha
+  allclasses.noalpha.df <- 
+    allclasses.df[ , -which(names(allclasses.df) %in% c("alpha"))] #remove alpha
 
-
+# Write full data to .csv and reload with new name for classification.
 
   write.csv(allclasses.noalpha.df, 
             'output/droneclassif_plusSHD.csv', 
-            row.names = FALSE) #21
+            row.names = FALSE)
   
   classif.allclasses <- read.csv("output/droneclassif_plusSHD.csv", 
-                                 check.names = FALSE) #22
+                                 check.names = FALSE)
 
 # Preparing data for a second, mixed shadow, classification
 
@@ -122,53 +120,34 @@ unique(SHDmixdata.df$Class)
 
 # Check for NAs
 
-apply(SHDmixdata.df, 2, function(x) any(is.na(x)))
+  apply(SHDmixdata.df, 2, function(x) any(is.na(x)))
 
   #full.df.wona <- na.omit(full.df)
 
-summary(SHDmixdata.df$Class)
+  summary(SHDmixdata.df$Class)
   #summary(full.df.wona$Class)
   #summary(full.df$Class)-summary(full.df.wona$Class)
 
-SHDmixdata.noalpha.df <- 
-  SHDmixdata.df[ , -which(names(SHDmixdata.df) %in% c("alpha"))] #19
+  SHDmixdata.noalpha.df <- 
+    SHDmixdata.df[ , -which(names(SHDmixdata.df) %in% c("alpha"))]
 
-write.csv(SHDmixdata.noalpha.df, 
+# Write mix shadow data to .csv and reload with new name for classification.
+  
+  write.csv(SHDmixdata.noalpha.df, 
           'output/droneclassif_mixSHD.csv', 
-          row.names = FALSE) #21
+          row.names = FALSE)
 
-classif.mixSHD <- read.csv("output/droneclassif_mixSHD.csv", 
-                     check.names = FALSE) #22
-
-# It is tested whether the bands in the classification data are correlated (23) 
-# to later select a suitable selection method for relevant classification bands.
-
-corr <- cor(classif.allclasses[,2:10]) #23
-corr2 <- cor(classif.mixSHD[,2:10])
-
-  round(corr,2)
-  round(corr2,2)
+  classif.mixSHD <- read.csv("output/droneclassif_mixSHD.csv", 
+                     check.names = FALSE)
 
 
-corrplot(corr, type = "upper", 
-         order = "hclust", 
-         tl.col = "black", 
-         tl.srt = 45, 
-         sig.level = 0.01, 
-         insig = "p-value")
+# Plot Figure 3 (Multispectral signatures - TR, UN, SHD)
 
-corrplot.mixed(corr)
-corrplot.mixed(corr2)
+  fig3 <- classif.allclasses[,1:6]
 
-# Finally, re-assign (24) and rename (25) column names of the just exported df 
-# to prepare (26) the data for a ggplot2 output (wide to long format). Plot (27)
-# spectra to build figure 2 in the manuscript.
+    names(fig3) <- c("Type","475", "560", "668", "717", "840")
 
-fig2 <- classif.allclasses[,1:6] #24
-
-names(fig2) <- c("Type","475", "560", "668", "717", "840") #25
-
-spectragg <- prep_gg(fig2, agg = TRUE) #26
+      spectragg <- prep_gg(fig3, agg = TRUE)
 
 C <- ggplot(spectragg, aes(Wavelength, Reflectance*100, colour = Type)) +
   geom_line(aes(linetype=Type), size = 1)+
@@ -265,7 +244,7 @@ C <- ggplot(spectragg, aes(Wavelength, Reflectance*100, colour = Type)) +
   labs(x = "Wavelength [nm]", y = "Reflectance [%]")
   
 
-ggsave("output/Figure2.allspectra.png",
+ggsave("output/Figure3.allspectra.png",
        plot = C,
        width = 40,
        height = 20,
@@ -276,250 +255,250 @@ ggsave("output/Figure2.allspectra.png",
 
 # PART B------------------Random Forest Classification--------------------------
 
-#########################
+# All Classes (TR, UN, SHD) ----------------------------------------------------
 
-#All classes (TR, UN, SHD)
+set.seed(2019)
 
-# First we set a seed (30) to consistently reproduce the results of the 
-# classification. Then we partition the extracted pixel data (classif) into a 
-# training and test subset (31). Finally, we tune the settings for the random forest 
-# training process (32, 33).
+# Create test and training data
 
-#set.seed(20180524) #30
+  inTraining <- createDataPartition(classif.allclasses$Class, 
+                                    p = .75, 
+                                    list = FALSE)
+  
+    train <- classif.allclasses[ inTraining,]
+    test  <- classif.allclasses[-inTraining,]
+    
+# Define random forest model training parameters
 
-inTraining <- createDataPartition(classif.allclasses$Class, p = .75, list = FALSE)
-train <- classif.allclasses[ inTraining,]
-test  <- classif.allclasses[-inTraining,] #31
+  rfControl <- trainControl(
+      method = "boot",
+      number = 100)
 
-rfControl <- trainControl(
-  method = "boot",
-  number = 100
-) #32
+  rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1))
+    
+# Train random forest model
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #33
-
-# Then we initialize a timer (34) to measure the computation time of the 
-# training (35) and prediction (36) process. Then, we stop timing (37). We can 
-# assign (38) and export (39) a report of our classification. We are also 
-# saving (40) the model object for later re-use (41) which will save time when 
-# re-running the analysis.
-
-tic("RF.I") #34
-
-rfFit <- train(Class ~ ., data = train,
+  rfFit <- train(Class ~ ., data = train,
                method = "rf",
                importance = TRUE, ntree=500,
                trControl = rfControl, tuneGrid = rfGrid,
-               metric = "Accuracy", maximize = TRUE) #35
+               metric = "Accuracy", maximize = TRUE)
 
-rfPred <- 
-  predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw") #36
+# Validate random forest model on test data
 
-toc() #37
+  rfPred <- 
+    predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw")
 
-RFdataall <- 
-  list(fit = rfFit,
-       pred = predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw"),
-       confusion = confusionMatrix(rfPred, test$Class),
-       varImp = varImp(rfFit, scale = TRUE)) #38
+# Store relevant random forest results in a list() container for proper output
 
-sink(file = 'output/I_allclasses_RFclassif_report.txt')
-RFdataall #39
-sink()
+  RFdataall <- 
+    list(fit = rfFit,
+      pred = predict.train(rfFit, 
+                           test[, !names(test) %in% c("Class")], 
+                           type = "raw"),
+      confusion = confusionMatrix(rfPred, test$Class),
+      varImp = varImp(rfFit, scale = TRUE))
 
-saveRDS(RFdataall, 'output/I_allclasses_RFclassif_object.rds') #40
-RFdataall <- readRDS("output/I_allclasses_RFclassif_object.rds") #41
-#########################
+# Use sink() to export list() container contents as text file
+  
+  sink(file = 'output/I_allclasses_RFclassif_report.txt')
+    RFdataall
+  sink()
 
-#Mix shadow (TR_S, UN_S)
+# Save list() container as R data object to not have to rerun analysis
 
-# First we set a seed (30) to consistently reproduce the results of the 
-# classification. Then we partition the extracted pixel data (classif) into a 
-# training and test subset (31). Finally, we tune the settings for the random forest 
-# training process (32, 33).
+  saveRDS(RFdataall, 'output/I_allclasses_RFclassif_object.rds')
+  #RFdataall <- readRDS("output/I_allclasses_RFclassif_object.rds")
 
-#set.seed(20180524) #30
 
-inTraining <- createDataPartition(classif.mixSHD$Class, p = .75, list = FALSE)
-train <- classif.mixSHD[ inTraining,]
-test  <- classif.mixSHD[-inTraining,] #31
+# Mix Shadow (TR_S, UN_S) ------------------------------------------------------
 
-rfControl <- trainControl(
-  method = "boot",
-  number = 100
-) #32
+# Create test and training data
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #33
+  inTraining <- createDataPartition(classif.mixSHD$Class, p = .75, list = FALSE)
 
-# Then we initialize a timer (34) to measure the computation time of the 
-# training (35) and prediction (36) process. Then, we stop timing (37). We can 
-# assign (38) and export (39) a report of our classification. We are also 
-# saving (40) the model object for later re-use (41) which will save time when 
-# re-running the analysis.
+  train <- classif.mixSHD[ inTraining,]
+  test  <- classif.mixSHD[-inTraining,]
 
-tic("RF.I") #34
+# Train random forest model
 
-rfFit <- train(Class ~ ., data = train,
+  rfFit <- train(Class ~ ., data = train,
                method = "rf",
                importance = TRUE, ntree=500,
                trControl = rfControl, tuneGrid = rfGrid,
-               metric = "Accuracy", maximize = TRUE) #35
+               metric = "Accuracy", maximize = TRUE)
 
-rfPred <- 
-  predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw") #36
+# Validate random forest model on test data
 
-toc() #37
+  rfPred <- 
+  predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw")
 
-RFdatamix <- 
-  list(fit = rfFit,
-       pred = predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw"),
+# Store relevant random forest results in a list() container for proper output
+
+  RFdatamix <- 
+    list(fit = rfFit,
+       pred = predict.train(rfFit, 
+                            test[, !names(test) %in% c("Class")],
+                            type = "raw"),
        confusion = confusionMatrix(rfPred, test$Class),
-       varImp = varImp(rfFit, scale = TRUE)) #38
+       varImp = varImp(rfFit, scale = TRUE))
+  
+# Use sink() to export list() container contents as text file
 
-sink(file = 'output/II_mix_RFclassif_report.txt')
-RFdatamix #39
-sink()
+  sink(file = 'output/II_mix_RFclassif_report.txt')
+    RFdatamix
+  sink()
 
-saveRDS(RFdata, 'output/II_mix_RFclassif_object.rds') #40
-RFdatamix <- readRDS("output/II_mix_RFclassif_object.rds") #41
+# Save list() container as R data object to not have to rerun analysis
 
-#########################
+  saveRDS(RFdata, 'output/II_mix_RFclassif_object.rds')
+  #RFdatamix <- readRDS("output/II_mix_RFclassif_object.rds")
 
-#Only UN and TR
 
-classif.TRUN <- drop_class(classif.allclasses, 
-                           classif.allclasses$Class, 
-                           "SHD")
+# Only UN and TR ---------------------------------------------------------------
 
-inTraining <- createDataPartition(classif.TRUN$Class, p = .75, list = FALSE)
-train <- classif.TRUN[ inTraining,]
-test  <- classif.TRUN[-inTraining,] #31
+# Drop shadow class
 
-rfControl <- trainControl(
-  method = "boot",
-  number = 100
-) #32
+  classif.TRUN <- drop_class(classif.allclasses, 
+                             classif.allclasses$Class, 
+                             "SHD")
+  
+# Create test and training data
 
-rfGrid <- expand.grid(mtry = seq(1, ncol(train)-1, 1)) #33
+  inTraining <- createDataPartition(classif.TRUN$Class, p = .75, list = FALSE)
 
-# Then we initialize a timer (34) to measure the computation time of the 
-# training (35) and prediction (36) process. Then, we stop timing (37). We can 
-# assign (38) and export (39) a report of our classification. We are also 
-# saving (40) the model object for later re-use (41) which will save time when 
-# re-running the analysis.
+    train <- classif.TRUN[ inTraining,]
+    test  <- classif.TRUN[-inTraining,]
 
-tic("RF.I") #34
-
-rfFit <- train(Class ~ ., data = train,
+# Train random forest model
+  
+  rfFit <- train(Class ~ ., data = train,
                method = "rf",
                importance = TRUE, ntree=500,
                trControl = rfControl, tuneGrid = rfGrid,
-               metric = "Accuracy", maximize = TRUE) #35
+               metric = "Accuracy", maximize = TRUE)
+  
+# Validate random forest model on test data
 
-rfPred <- 
-  predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw") #36
+  rfPred <- 
+    predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw")
 
-toc() #37
+# Store relevant random forest results in a list() container for proper output
 
-RFdata_TRUN <- 
-  list(fit = rfFit,
-       pred = predict.train(rfFit, test[, !names(test) %in% c("Class")], type = "raw"),
+  RFdata_TRUN <- 
+    list(fit = rfFit,
+       pred = predict.train(rfFit, 
+                            test[, !names(test) %in% c("Class")], 
+                            type = "raw"),
        confusion = confusionMatrix(rfPred, test$Class),
        varImp = varImp(rfFit, scale = TRUE)) #38
 
-sink(file = 'output/III_onlyTRUN_RFclassif_report.txt')
-RFdata_TRUN #39
-sink()
+# Use sink() to export list() container contents as text file
 
-saveRDS(RFdata_TRUN, 'output/III_onlyTRUN_RFclassif_object.rds') #40
-RFdata_TRUN <- readRDS("output/III_onlyTRUN_RFclassif_object.rds") #41
+  sink(file = 'output/III_onlyTRUN_RFclassif_report.txt')
+    RFdata_TRUN
+  sink()
+
+# Save list() container as R data object to not have to rerun analysis
+
+  saveRDS(RFdata_TRUN, 'output/III_onlyTRUN_RFclassif_object.rds') #40
+  #RFdata_TRUN <- readRDS("output/III_onlyTRUN_RFclassif_object.rds") #41
 
 # PART C----------------------Feature Selection---------------------------------
 
-# Here (42) we select relevant classification features for our dataset.
-# Also, we export the object containing the features (43), create a relative version 
-# of ranked features (44), an absolute version (45), combine them (46), 
-# rename these objects (47) and export them as a table (48). VSURF can select 
-# relevant features from datasets that contain correlated predictor variables.
+# Test for all data sets whether predictor variables are correlated.
 
-#set.seed(20190301)
+corr <- round(cor(classif.allclasses[,2:10]), 2)
+corr2 <- round(cor(classif.mixSHD[,2:10]), 2)
+corr3 <- round(cor(classif.TRUN[,2:10]), 2)
+
+  corrplot.mixed(corr)
+  corrplot.mixed(corr2)
+  corrplot.mixed(corr3)
+  
+  # NOTE: As they are correlated, the VSURF package is used for feature 
+  # selection to confirm random forest feature selection.
+
+set.seed(201903)
 
 fs.I <- VSURF(classif.allclasses[,2:10], 
              classif.allclasses[,1], 
              clusterType = "FORK", 
-             ntree = 500,mtry = 4) #42
+             ntree = 500,mtry = 4)
 
 fs.II <- VSURF(classif.mixSHD[,2:10], 
                classif.mixSHD[,1], 
               clusterType = "FORK", 
-              ntree = 500,mtry = 4) #42
+              ntree = 500,mtry = 4)
 
 fs.III <- VSURF(classif.TRUN[,2:10], 
                 classif.TRUN[,1], 
               clusterType = "FORK", 
-              ntree = 500,mtry = 4) #42
+              ntree = 500,mtry = 4)
 
-# Warning message can be ignored. set mtry = best model reported in RFdata_report.txt
+  # NOTE: Warning message can be ignored. set mtry = best model reported in 
+  # RFdata_report.txt.
 
+# Save feature selection results as R data object to not have to rerun if requ.
 
-saveRDS(fs.I, 'output/I_fs_allRFdata.rds') #43
-saveRDS(fs.II, 'output/II_fs_mixRFdata.rds')
-saveRDS(fs.III, 'output/III_fs_TRUNRFdata.rds')
-
+  saveRDS(fs.I, 'output/I_fs_allRFdata.rds')
+  saveRDS(fs.II, 'output/II_fs_mixRFdata.rds')
+  saveRDS(fs.III, 'output/III_fs_TRUNRFdata.rds')
+  
+# Use VSURF_table() to create nice feature selection output.
 
   varimp_I<- VSURF_table(fs.I, classif.allclasses[,-1])
   varimp_II<- VSURF_table(fs.II, classif.mixSHD[,-1])
   varimp_III<- VSURF_table(fs.III, classif.TRUN[,-1])
+  
+# Write VSURF_table() objects as .csv file for manuscript use.
 
-write.csv(varimp_I, 'output/varimp.all_I_RFdata.csv', row.names = TRUE)
-write.csv(varimp_II, 'output/varimp.mix_II_RFdata.csv', row.names = TRUE)
-write.csv(varimp_III, 'output/varimp.TRUN_III_RFdata.csv', row.names = TRUE)
+  write.csv(varimp_I, 'output/varimp.all_I_RFdata.csv', row.names = TRUE)
+  write.csv(varimp_II, 'output/varimp.mix_II_RFdata.csv', row.names = TRUE)
+  write.csv(varimp_III, 'output/varimp.TRUN_III_RFdata.csv', row.names = TRUE)
 
 # PART D------------------Creating a Disease Risk Map --------------------------
 
-# Import aerial scene as brick image (49), similar to the one imported initially
-# (see #1). Any ground/soil pixel has been removed (Agisoft Photoscan Pro) to 
-# have only the lemon myrtle trees remaining. The imported image can be used to 
-# test the model by predicting the class of each pixel in this images. To display 
-# the image, we set background pixel as being tranparent (50) by removing the 
-# alpha channel which was not used as a predictor variable. Then we divide by 
-# the max DN value to yield reflectance values as before (51) and rename (52) 
-# the bands to match the data on which we trained the random forest model. Now 
-# we can predict the pixel-classes (53), plot (54) and export the result (55).
+# Import raster file similar to initial raster but without any ground pixel.
+  
+  imgpred <-  brick("data/20180528_ortho_no_ground.tif")
 
-imgpred <-  brick("data/20180528_ortho_no_ground.tif") #49
+# Convert DN into reflectance
+  
+  imgpred <- imgpred/65535
+  
+# Rename raster layers for clarity (must be identical with initial layer names)
 
-imgpred <- imgpred/65535 #51
+  names(imgpred) <- c("blue", "green", "red", "re", "nir", "alpha")
 
-ndvi.p <- 
-  (imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.3)/
-  (imgpred$X20180528_ortho_no_ground.5+imgpred$X20180528_ortho_no_ground.3)
-rg.p <- 
-  imgpred$X20180528_ortho_no_ground.2/imgpred$X20180528_ortho_no_ground.3
-sipi.p <- 
-  (imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.1)/
-  (imgpred$X20180528_ortho_no_ground.5-imgpred$X20180528_ortho_no_ground.3)
-ari.p <- 
-  (1/imgpred$X20180528_ortho_no_ground.2)-(1/imgpred$X20180528_ortho_no_ground.4)
+    ndvi.p <- (imgpred$nir-imgpred$red)/(imgpred$nir+imgpred$red)
+    rg.p <- imgpred$red/imgpred$green
+    sipi.p <- (imgpred$nir-imgpred$blue)/(imgpred$nir-imgpred$red)
+    ari.p <- (1/imgpred$green)-(1/imgpred$re)
 
-imgpred <- addLayer(imgpred, c(ndvi.p, cal.p, sipi.p, ari.p))
+      imgpred <- addLayer(imgpred, c(ndvi.p, rg.p, sipi.p, ari.p))
 
-names(imgpred) <- c("blue", "green", "red", "re", 
-                    "nir", "alpha", "ndvi", "rg", "sipi", "ari") #52
+  names(imgpred) <- c("blue", "green", "red", "re", 
+                    "nir", "alpha", "ndvi", "rg", "sipi", "ari")
+  
+# Remove alpha channel
+  
+  riskpre <- imgpred[[c(1,2,3,4,5,7,8,9,10)]]
+    names(riskpre)
+  
+# Start predicting pixel values (risk map) based on random forest model
+  
+  riskpred <- predict(riskpre, RFdata$fit)
 
-riskpre <- imgpred[[c(1,2,3,4,5,7,8,9,10)]] #50 remove alpha channel
+    plot(riskpred)
 
-riskpred <- predict(riskpre, RFdata$fit) #53
-
-plot(riskpred) #54
-
-currentDate <- Sys.Date()
-rstFileName <- paste("output/riskmap",currentDate,".tif",sep="")
-writeRaster(riskpred, 
+  currentDate <- Sys.Date()
+  rstFileName <- paste("output/riskmap",currentDate,".tif",sep="")
+  writeRaster(riskpred, 
             file=rstFileName, 
             format = "GTiff", 
             bylayer=TRUE, 
-            overwrite=TRUE) #55
+            overwrite=TRUE)
 
 # Note: The exported risk map was further processed in QGIS to change class 
 # colours and have it ready for publication
