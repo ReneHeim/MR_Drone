@@ -61,14 +61,14 @@ source("R/FUN_VSURF_table.R")#create feature selection output
                 "nir", "alpha")
   
     ndvi <- (img$nir-img$red)/(img$nir+img$red)
-    rg <- img$red/img$green
+    gr <- img$green/img$red
     sipi <- (img$nir-img$blue)/(img$nir-img$red)
     ari <- (1/img$green)-(1/img$re)
 
-      img <- addLayer(img, c(ndvi, rg, sipi, ari))
+      img <- addLayer(img, c(ndvi, gr, sipi, ari))
 
   names(img) <- c("blue", "green", "red", "re", 
-                "nir", "alpha", "ndvi", "rg", "sipi", "ari")
+                "nir", "alpha", "ndvi", "gr", "sipi", "ari")
 
 # Loading QGIS shape file where sample polygons have been defined.
 
@@ -472,14 +472,14 @@ fs.III <- VSURF(classif.TRUN[,2:10],
   names(imgpred) <- c("blue", "green", "red", "re", "nir", "alpha")
 
     ndvi.p <- (imgpred$nir-imgpred$red)/(imgpred$nir+imgpred$red)
-    rg.p <- imgpred$red/imgpred$green
+    gr.p <- imgpred$green/imgpred$red
     sipi.p <- (imgpred$nir-imgpred$blue)/(imgpred$nir-imgpred$red)
     ari.p <- (1/imgpred$green)-(1/imgpred$re)
 
-      imgpred <- addLayer(imgpred, c(ndvi.p, rg.p, sipi.p, ari.p))
+      imgpred <- addLayer(imgpred, c(ndvi.p, gr.p, sipi.p, ari.p))
 
   names(imgpred) <- c("blue", "green", "red", "re", 
-                    "nir", "alpha", "ndvi", "rg", "sipi", "ari")
+                    "nir", "alpha", "ndvi", "gr", "sipi", "ari")
   
 # Remove alpha channel
   
@@ -488,7 +488,7 @@ fs.III <- VSURF(classif.TRUN[,2:10],
   
 # Start predicting pixel values (risk map) based on random forest model
   
-  riskpred <- predict(riskpre, RFdata$fit)
+  riskpred <- predict(riskpre, RFdataall$fit)
 
     plot(riskpred)
 
